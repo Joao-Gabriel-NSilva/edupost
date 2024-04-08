@@ -18,7 +18,7 @@ class HeadLoginWidget extends StatelessWidget {
           child: Container(
             height: heightDefault,
             decoration: BoxDecoration(
-              color: UtilStyle.instance.colorRedLogin.withOpacity(0.2),
+              color: UtilStyle.instance.colorLogin.withOpacity(0.2),
             ),
           ),
         ),
@@ -27,7 +27,7 @@ class HeadLoginWidget extends StatelessWidget {
           child: Container(
             height: heightDefault - 15,
             decoration: BoxDecoration(
-              color: UtilStyle.instance.colorRedLogin.withOpacity(0.2),
+              color: UtilStyle.instance.colorLogin.withOpacity(0.2),
             ),
           ),
         ),
@@ -36,7 +36,7 @@ class HeadLoginWidget extends StatelessWidget {
           child: Container(
             height: heightSecondary,
             decoration: BoxDecoration(
-              color: UtilStyle.instance.colorRedLogin.withOpacity(0),
+              color: UtilStyle.instance.colorLogin.withOpacity(0),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -60,7 +60,7 @@ class HeadLoginWidget extends StatelessWidget {
                     child: Text('Edupost',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: UtilStyle.instance.colorRedLogin,
+                            color: UtilStyle.instance.colorLogin,
                             fontSize: 24,
                             fontFamily: 'Arial',
                             fontWeight: FontWeight.w900)))

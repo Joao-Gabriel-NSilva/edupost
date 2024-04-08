@@ -8,5 +8,5 @@ class UtilStyle {
     return _utilStyle;
   }
 
-  final Color colorRedLogin = Colors.lightGreen.shade900;
+  final Color colorLogin = Colors.lightGreen.shade900;
 }

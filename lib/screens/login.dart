@@ -53,12 +53,12 @@ class LoginState extends State<Login> {
             style: ButtonStyle(
               overlayColor: WidgetStateProperty.all(Colors.white70),
               backgroundColor:
-                  WidgetStateProperty.all(UtilStyle.instance.colorRedLogin),
+                  WidgetStateProperty.all(UtilStyle.instance.colorLogin),
               shape: WidgetStateProperty.all(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                   side: BorderSide(
-                    color: UtilStyle.instance.colorRedLogin,
+                    color: UtilStyle.instance.colorLogin,
                     width: 2.0, // Tamanho da borda
                   ),
                 ),
