@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "282874535003",
+    "project_id": "edupost-firebase",
+    "storage_bucket": "edupost-firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:282874535003:android:a1b573f6b36b8c5ac3f37e",
+        "android_client_info": {
+          "package_name": "com.example.edupost"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBg_oKU4zkbjng7kAXKBowIQKuxQoCkdVY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

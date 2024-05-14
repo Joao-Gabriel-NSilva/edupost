@@ -1,8 +1,10 @@
+import 'package:edupost/screens/home_page_prof.dart';
 import 'package:flutter/material.dart';
 
 import '../util/util_style.dart';
 import '../widget/login/form_login_widget.dart';
 import '../widget/login/head_login_widget.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -53,21 +55,41 @@ class LoginState extends State<Login> {
             style: ButtonStyle(
               overlayColor: WidgetStateProperty.all(Colors.white70),
               backgroundColor:
-                  WidgetStateProperty.all(UtilStyle.instance.colorLogin),
+                  WidgetStateProperty.all(UtilStyle.instance.corPrimaria),
               shape: WidgetStateProperty.all(
                 RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                   side: BorderSide(
-                    color: UtilStyle.instance.colorLogin,
+                    color: UtilStyle.instance.corPrimaria,
                     width: 2.0, // Tamanho da borda
                   ),
                 ),
               ),
             ),
             onPressed: !value
-                ? () {
+                ? () async {
                     if (_formKey.currentState!.validate()) {
-                      // _authUser();
+                      _animationButton.value = true;
+                      try {
+                        await FirebaseAuth.instance
+                            .signInWithEmailAndPassword(
+                                email: _controllerLogin.text,
+                                password: _controllerPassword.text);
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (BuildContext contect) =>
+                                    HomePageProf()), (a) => false);
+                      } catch (ex) {
+                        _animationButton.value = false;
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            duration: Duration(seconds: 5),
+                            content: Text(
+                                'Falha na autenticação. Usuário ou senha incorretos.'),
+                          ),
+                        );
+                      }
                     }
                   }
                 : null,

@@ -1,0 +1,22 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "edupost-firebase",
+          "appId": "1:282874535003:android:a1b573f6b36b8c5ac3f37e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "edupost-firebase",
+          "configurations": {
+            "android": "1:282874535003:android:a1b573f6b36b8c5ac3f37e",
+            "ios": "1:282874535003:ios:d09e2d6b32e44a86c3f37e"
+          }
+        }
+      }
+    }
+  }
+}

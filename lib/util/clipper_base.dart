@@ -47,7 +47,7 @@ class ClipperBase extends CustomClipper<Path> {
   void createOval(Size size, Path path) {
     path.lineTo(0, size.height - 26);
     path.quadraticBezierTo(
-        size.width / 2, size.height + 5, size.width - 100, size.height - 100);
+        size.width / 2, size.height + 5, size.width - 100, size.height - 68);
     path.lineTo(size.width, 0);
   }
 

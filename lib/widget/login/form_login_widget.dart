@@ -69,7 +69,7 @@ class FormLoginWidgetState extends State<FormLoginWidget> {
                 labelStyle: _labelTextStyle(),
                 prefixIcon: Icon(
                   FontAwesomeIcons.userLarge,
-                  color: UtilStyle.instance.colorLogin,
+                  color: UtilStyle.instance.corPrimaria,
                   size: 16,
                 ),
               ),
@@ -114,7 +114,7 @@ class FormLoginWidgetState extends State<FormLoginWidget> {
                           ? FontAwesomeIcons.eye
                           : FontAwesomeIcons.eyeSlash,
                       size: 16,
-                      color: UtilStyle.instance.colorLogin),
+                      color: UtilStyle.instance.corPrimaria),
                 )
                     : null,
                 enabledBorder: _enabledBorder(),
@@ -122,7 +122,7 @@ class FormLoginWidgetState extends State<FormLoginWidget> {
                 labelStyle: _labelTextStyle(),
                 prefixIcon: Icon(
                   FontAwesomeIcons.lock,
-                  color: UtilStyle.instance.colorLogin,
+                  color: UtilStyle.instance.corPrimaria,
                   size: 16,
                 ),
               ),
