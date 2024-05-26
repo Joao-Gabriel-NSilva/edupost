@@ -5,8 +5,9 @@ import '../../screens/canal.dart';
 
 class ItemListaCanal extends StatelessWidget {
   final ModelCanal canal;
+  final bool ehAdm;
 
-  const ItemListaCanal(this.canal, {super.key});
+  const ItemListaCanal(this.canal, this.ehAdm, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +17,13 @@ class ItemListaCanal extends StatelessWidget {
   }
 
   Widget _buildListTile(context) {
+    var msg = canal.ultimaMsg ?? '';
+    if(msg.contains('\n')) {
+      msg = msg.split('\n')[0];
+    }
+    if(msg.length > 20) {
+      msg = msg.substring(20);
+    }
     return ListTile(
       contentPadding: const EdgeInsets.all(12),
       tileColor: Colors.black26,
@@ -24,7 +32,7 @@ class ItemListaCanal extends StatelessWidget {
         style: const TextStyle(fontSize: 16, color: Colors.white),
       ),
       subtitle: Text(
-        canal.ultimaMsg ?? '',
+        msg,
         style: const TextStyle(color: Colors.white38),
       ),
       trailing: canal.msgsNaoVisualidazas != null &&
@@ -41,7 +49,7 @@ class ItemListaCanal extends StatelessWidget {
 
   void _tap(context) {
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => Canal(canal)));
+        .push(MaterialPageRoute(builder: (_) => Canal(canal, ehAdm)));
 
     // Navigator.of(context).push(PageRouteBuilder(
     //     pageBuilder: (context, animation, secondaryAnimation) => Canal(canal),

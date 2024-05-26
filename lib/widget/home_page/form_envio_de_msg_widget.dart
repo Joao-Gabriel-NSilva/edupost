@@ -8,8 +8,10 @@ class FormEnvioDeMsgWidget extends StatefulWidget {
   final GlobalKey<FormState> _formKey;
   final TextEditingController _controllerMsg;
   final MultiSelectController<String> _selectController;
+  final FocusNode _nodeMsg = FocusNode();
+  final FocusNode _nodeTurmas = FocusNode();
 
-  const FormEnvioDeMsgWidget(
+   FormEnvioDeMsgWidget(
       this._formKey, this._controllerMsg, this._selectController,
       {Key? key})
       : super(key: key);
@@ -21,18 +23,10 @@ class FormEnvioDeMsgWidget extends StatefulWidget {
 }
 
 class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
-  final FocusNode _nodeMsg = FocusNode();
-  final FocusNode _nodeTurmas = FocusNode();
+
   final List<ValueItem<String>> listaTurmas = [];
   bool turmaValida = true;
 
-  bool validaTurmaSelecionada() {
-    var aux = widget._selectController.selectedOptions.isEmpty;
-    setState(() {
-      turmaValida = !aux;
-    });
-    return !aux;
-  }
 
   @override
   void initState() {
@@ -85,7 +79,7 @@ class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 MultiSelectDropDown<String>(
-                  focusNode: _nodeTurmas,
+                  focusNode: widget._nodeTurmas,
                   onOptionSelected: (List<ValueItem> selectedOptions) {},
                   controller: widget._selectController,
                   options: d.data!,
@@ -120,7 +114,7 @@ class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
                   height: 20,
                 ),
                 TextFormField(
-                    focusNode: _nodeMsg,
+                    focusNode: widget._nodeMsg,
                     controller: widget._controllerMsg,
                     maxLines: null,
                     keyboardType: TextInputType.multiline,
@@ -140,10 +134,10 @@ class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
                     },
                     onFieldSubmitted: (_) {
                       if (widget._controllerMsg.text.isEmpty) {
-                        widget._formKey.currentState?.validate();
+                        // widget._formKey.currentState?.validate();
                       }
                       if (widget._selectController.selectedOptions.isEmpty) {
-                        FocusScope.of(context).requestFocus(_nodeTurmas);
+                        // FocusScope.of(context).requestFocus(_nodeTurmas);
                       }
                     }),
               ],

@@ -144,7 +144,7 @@ class HomePageProfState extends State<HomePageProf> {
                       mensagens: [],
                       ultimaMsg: data['ultimaMsg'],
                       msgsNaoVisualidazas: 0,
-                      complemento: data['complemento']));
+                      complemento: data['complemento']), true);
                 },
               ))
             ],

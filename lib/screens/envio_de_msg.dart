@@ -76,7 +76,7 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
             ),
             onPressed: !value && !_animationButton.value
                 ? () async {
-                    _enviaMsg();
+                    _enviaMsg(context);
                   }
                 : null,
             child: !value
@@ -102,17 +102,16 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
     );
   }
 
-  void _enviaMsg() async {
+  void _enviaMsg(context) async {
     var temMsg = _formKey.currentState!.validate() &&
         _controllerMsg.text.trim().isNotEmpty;
-    var temTurma = _k.currentState!.validaTurmaSelecionada();
-    if (temMsg && temTurma) {
+    if (temMsg && _selectController.selectedOptions.isNotEmpty) {
       _animationButton.value = true;
       var email = FirebaseAuth.instance.currentUser!.email;
       var conteudo = _controllerMsg.text;
       try {
         var remetente = FirebaseFirestore.instance.doc('usuarios/$email');
-        var nome = (await remetente.get()).data()!['nome'];
+        // var nome = (await remetente.get()).data()!['nome'];
         for (var item in _selectController.selectedOptions) {
           var t = FirebaseFirestore.instance.doc('turmas/${item.value!}');
           await t.collection('mensagens').add({
@@ -131,7 +130,7 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
         _selectController.clearAllSelection();
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mensagens enviadas com sucesso!')),
+          const SnackBar(content: Text('Mensagem enviada com sucesso!')),
         );
       } catch (ex) {
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -142,6 +141,13 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
           _animationButton.value = false;
         });
       }
+    } else {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content:
+                Text('Informe o conteúdo da mensagem e ao menos uma turma.')),
+      );
     }
   }
 }
