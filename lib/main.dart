@@ -29,10 +29,18 @@ class App extends StatelessWidget {
       title: 'Edupost',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        useMaterial3: false,
+        // pageTransitionsTheme: PageTransitionsTheme(
+        //   builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
+        //     TargetPlatform.values,
+        //     value: (dynamic _) => const FadeUpwardsPageTransitionsBuilder(),
+        //   ),
+        // ),
+
       ),
-      home: logado ? HomePageProf() : const Login(),
+      home: logado ? const HomePageProf() : const Login(),
       debugShowCheckedModeBanner: false,
-    );
+
+      );
   }
 }

@@ -1,29 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:edupost/model/home_page/mensagem.dart';
 import 'package:edupost/screens/login.dart';
 import 'package:edupost/util/util_style.dart';
 import 'package:edupost/widget/home_page/item_lista_canal.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../model/home_page/canal.dart';
+import '../model/home_page/curso.dart';
+import '../model/home_page/model_canal.dart';
 
 class HomePageProf extends StatefulWidget {
-  final List<Canal> _canais = [
-    Canal('ESW 5', 'seguinte, segunda não tem aula', 6),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 3),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1),
-    Canal('ADS 5', 'testeeee', 1)
-  ];
 
-  HomePageProf({super.key});
+  const HomePageProf({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -35,6 +23,36 @@ class HomePageProfState extends State<HomePageProf> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<List<ModelCanal>> _getDadosTurma(List<DocumentSnapshot> turmas) async {
+    List<ModelCanal> lista = [];
+    for (var snapshot in turmas) {
+      var data = snapshot.data() as Map<String, dynamic>;
+      var curso = await _getDadosCurso(snapshot['curso']);
+      var mens = await snapshot.reference.collection('mensagens').get();
+      List<Mensagem> msgs = [];
+      if (mens.docs.isNotEmpty) {
+        msgs = mens.docs
+            .map((m) => Mensagem.fromFirestore(
+                m as DocumentSnapshot<Map<String, dynamic>>, null))
+            .toList();
+        for (var m in msgs) {
+          await m.loadRemetente();
+        }
+      }
+
+      var canal = ModelCanal(curso.nome, data['periodo'], data['semestre'],
+          mensagens: msgs);
+      lista.add(canal);
+    }
+    return lista;
+  }
+
+  Future<Curso> _getDadosCurso(DocumentReference curso) async {
+    DocumentSnapshot ds = await curso.get();
+    var data = ds.data() as Map<String, dynamic>;
+    return Curso(data['nome']);
   }
 
   @override
@@ -60,11 +78,11 @@ class HomePageProfState extends State<HomePageProf> {
                     child: ListTile(
                   leading: const Icon(Icons.logout),
                   title: const Text('Sair'),
-                  onTap: () async {
-                    await FirebaseAuth.instance.signOut();
+                  onTap: () {
+                    FirebaseAuth.instance.signOut();
                     Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(builder: (b) => Login()),
+                        MaterialPageRoute(builder: (b) => const Login()),
                         (a) => false);
                   },
                 ))
@@ -74,22 +92,58 @@ class HomePageProfState extends State<HomePageProf> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+
+        },
         backgroundColor: UtilStyle.instance.corPrimaria,
         foregroundColor: Colors.white,
         child: const Icon(
           Icons.send,
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-              child: ListView.builder(
-                  itemCount: widget._canais.length,
-                  itemBuilder: (context, index) {
-                    return ItemListaCanal(widget._canais[index]);
-                  }))
-        ],
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('turmas').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (!snapshot.hasData) {
+            return const Column(
+              children: [
+                Expanded(
+                    child: Center(
+                  child: CircularProgressIndicator(),
+                ))
+              ],
+            );
+          }
+
+          return FutureBuilder<List<ModelCanal>>(
+              future: _getDadosTurma(snapshot.data!.docs),
+              builder: (context, dataSnapshot) {
+                if (dataSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Column(
+                    children: [
+                      Expanded(
+                          child: Center(
+                        child: CircularProgressIndicator(),
+                      ))
+                    ],
+                  );
+                }
+                return Column(
+                  children: [
+                    Expanded(
+                        child: ListView.builder(
+                      itemCount: dataSnapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return ItemListaCanal(dataSnapshot.data![index]);
+                      },
+                    ))
+                  ],
+                );
+              });
+        },
       ),
     );
   }

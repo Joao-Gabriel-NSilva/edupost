@@ -1,3 +1,4 @@
+import 'package:edupost/model/usuario.dart';
 import 'package:edupost/screens/home_page_prof.dart';
 import 'package:flutter/material.dart';
 
@@ -5,6 +6,9 @@ import '../util/util_style.dart';
 import '../widget/login/form_login_widget.dart';
 import '../widget/login/head_login_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'home_page_aluno.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -71,14 +75,32 @@ class LoginState extends State<Login> {
                     if (_formKey.currentState!.validate()) {
                       _animationButton.value = true;
                       try {
-                        await FirebaseAuth.instance
+                        var credential = await FirebaseAuth.instance
                             .signInWithEmailAndPassword(
                                 email: _controllerLogin.text,
                                 password: _controllerPassword.text);
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (BuildContext contect) =>
-                                    HomePageProf()), (a) => false);
+
+                        var obj = await FirebaseFirestore.instance
+                            .collection('usuarios')
+                            .doc(credential.user!.email)
+                            .get()
+                            .then((DocumentSnapshot documentSnapshot) {
+                          if (documentSnapshot.exists) {
+                            var data = documentSnapshot.data()!
+                                as Map<String, dynamic>;
+                            return Usuario(data['email'], data['nome'],
+                                data['ehSuperUsuario']);
+                          }
+                          return null;
+                        });
+
+                        if (obj != null) {
+                          Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (BuildContext contect) =>
+                                      obj.ehSuperUsuario ? HomePageProf() : HomePageAluno()),
+                              (a) => false);
+                        }
                       } catch (ex) {
                         _animationButton.value = false;
                         ScaffoldMessenger.of(context).clearSnackBars();

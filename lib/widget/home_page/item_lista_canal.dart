@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../model/home_page/canal.dart';
-
+import '../../model/home_page/model_canal.dart';
+import '../../screens/canal.dart';
 
 class ItemListaCanal extends StatelessWidget {
-  final Canal canal;
+  final ModelCanal canal;
 
   const ItemListaCanal(this.canal, {super.key});
 
@@ -16,20 +16,45 @@ class ItemListaCanal extends StatelessWidget {
           contentPadding: const EdgeInsets.all(12),
           tileColor: Colors.black26,
           title: Text(
-            canal.nome,
+            '${canal.nome} ${canal.complemento ?? ''} - ${canal.semestre}° semestre - ${canal.periodo}',
             style: const TextStyle(fontSize: 16, color: Colors.white),
           ),
           subtitle: Text(
-            canal.ultimaMsg,
+            canal.ultimaMsg ?? '',
             style: const TextStyle(color: Colors.white38),
           ),
-          trailing: Badge(
-            label: Text(canal.msgsNaoVisualidazas.toString()),
-            textStyle: const TextStyle(fontSize: 14),
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-          ),
+          trailing: canal.msgsNaoVisualidazas != null &&
+                  canal.msgsNaoVisualidazas! > 0
+              ? Badge(
+                  label: Text(canal.msgsNaoVisualidazas.toString()),
+                  textStyle: const TextStyle(fontSize: 14),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                )
+              : null,
           onTap: () {
+            // Navigator.of(context)
+            //     .push(MaterialPageRoute(builder: (_) => Canal(canal.nome, canal.mensagens?? [])));
 
+            Navigator.of(context).push(PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    Canal(canal.nome, canal.mensagens?? []),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(1.0, 0.0);
+                  const end = Offset.zero;
+                  const curve = Curves.ease;
+
+                  var tween = Tween(begin: begin, end: end)
+                      .chain(CurveTween(curve: curve));
+                  var offsetAnimation = animation.drive(tween);
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
+                  );
+                }
+            ));
           },
         ));
   }
