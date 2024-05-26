@@ -98,7 +98,7 @@ class LoginState extends State<Login> {
                           Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
                                   builder: (BuildContext contect) =>
-                                      obj.ehSuperUsuario ? HomePageProf() : HomePageAluno()),
+                                      obj.ehSuperUsuario ? const HomePageProf() : HomePageAluno()),
                               (a) => false);
                         }
                       } catch (ex) {

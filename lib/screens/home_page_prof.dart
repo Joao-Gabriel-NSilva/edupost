@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 
 import '../model/home_page/curso.dart';
 import '../model/home_page/model_canal.dart';
+import 'envio_de_msg.dart';
 
 class HomePageProf extends StatefulWidget {
-
   const HomePageProf({super.key});
 
   @override
@@ -30,7 +30,10 @@ class HomePageProfState extends State<HomePageProf> {
     for (var snapshot in turmas) {
       var data = snapshot.data() as Map<String, dynamic>;
       var curso = await _getDadosCurso(snapshot['curso']);
-      var mens = await snapshot.reference.collection('mensagens').get();
+      var mens = await snapshot.reference
+          .collection('mensagens')
+          .orderBy('data')
+          .get();
       List<Mensagem> msgs = [];
       if (mens.docs.isNotEmpty) {
         msgs = mens.docs
@@ -43,7 +46,7 @@ class HomePageProfState extends State<HomePageProf> {
       }
 
       var canal = ModelCanal(curso.nome, data['periodo'], data['semestre'],
-          mensagens: msgs);
+          mensagens: msgs, ultimaMsg: data['ultimaMsg']);
       lista.add(canal);
     }
     return lista;
@@ -93,7 +96,8 @@ class HomePageProfState extends State<HomePageProf> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (c) => const EnvioDeMsg()));
         },
         backgroundColor: UtilStyle.instance.corPrimaria,
         foregroundColor: Colors.white,
