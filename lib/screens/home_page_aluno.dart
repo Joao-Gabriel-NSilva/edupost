@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../model/home_page/model_canal.dart';
 
 class HomePageAluno extends StatefulWidget {
-  final List<ModelCanal> _canais = [ModelCanal('teste', 'noite', 5)];
+  final List<ModelCanal> _canais = [ModelCanal('teste', 'noite', 5, '1')];
 
   HomePageAluno({super.key});
 
@@ -61,12 +61,45 @@ class HomePageAlunoState extends State<HomePageAluno> {
       ),
       body: Column(
         children: [
-          Expanded(
-              child: ListView.builder(
-                  itemCount: widget._canais.length,
-                  itemBuilder: (context, index) {
-                    return ItemListaCanal(widget._canais[index]);
-                  }))
+          ElevatedButton(
+              onPressed: () {
+                // Navigator.of(context).push(PageRouteBuilder(
+                //     pageBuilder: (context, animation, secondaryAnimation) =>
+                //         Scaffold(
+                //           appBar: AppBar(
+                //             title: Text('asfasf'),
+                //           ),
+                //         ),
+                //     transitionsBuilder:
+                //         (context, animation, secondaryAnimation, child) {
+                //       const begin = Offset(1.0, 0.0);
+                //       const end = Offset.zero;
+                //       const curve = Curves.ease;
+                //
+                //       var tween = Tween(begin: begin, end: end)
+                //           .chain(CurveTween(curve: curve));
+                //       var offsetAnimation = animation.drive(tween);
+                //
+                //       return SlideTransition(
+                //         position: offsetAnimation,
+                //         child: child,
+                //       );
+                //     }
+                // ));
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (c) => Scaffold(
+                          appBar: AppBar(
+                            title: Text('asfasf'),
+                          ),
+                        )));
+              },
+              child: Text('asdasd'))
+          // Expanded(
+          //     child: ListView.builder(
+          //         itemCount: widget._canais.length,
+          //         itemBuilder: (context, index) {
+          //           return ItemListaCanal(widget._canais[index]);
+          //         }))
         ],
       ),
     );

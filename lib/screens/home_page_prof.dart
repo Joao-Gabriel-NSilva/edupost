@@ -1,5 +1,8 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edupost/model/home_page/mensagem.dart';
+import 'package:edupost/notification/firebase_notification.dart';
 import 'package:edupost/screens/login.dart';
 import 'package:edupost/util/util_style.dart';
 import 'package:edupost/widget/home_page/item_lista_canal.dart';
@@ -29,33 +32,34 @@ class HomePageProfState extends State<HomePageProf> {
     List<ModelCanal> lista = [];
     for (var snapshot in turmas) {
       var data = snapshot.data() as Map<String, dynamic>;
-      var curso = await _getDadosCurso(snapshot['curso']);
       var mens = await snapshot.reference
           .collection('mensagens')
           .orderBy('data')
           .get();
-      List<Mensagem> msgs = [];
+      // List<Mensagem> msgs = [];
+      var naoLidasCount = 0;
       if (mens.docs.isNotEmpty) {
-        msgs = mens.docs
+        for (var m in mens.docs
             .map((m) => Mensagem.fromFirestore(
                 m as DocumentSnapshot<Map<String, dynamic>>, null))
-            .toList();
-        for (var m in msgs) {
-          await m.loadRemetente();
+            .toList()) {
+          if (m.lidoPor != null &&
+              !m.lidoPor!.contains(FirebaseAuth.instance.currentUser!.email)) {
+            naoLidasCount++;
+          }
+          // await m.loadRemetente();
         }
       }
 
-      var canal = ModelCanal(curso.nome, data['periodo'], data['semestre'],
-          mensagens: msgs, ultimaMsg: data['ultimaMsg']);
+      var canal = ModelCanal(
+          data['curso'], data['periodo'], data['semestre'], snapshot.id,
+          mensagens: [],
+          ultimaMsg: data['ultimaMsg'],
+          msgsNaoVisualidazas: naoLidasCount,
+          complemento: data['complemento']);
       lista.add(canal);
     }
     return lista;
-  }
-
-  Future<Curso> _getDadosCurso(DocumentReference curso) async {
-    DocumentSnapshot ds = await curso.get();
-    var data = ds.data() as Map<String, dynamic>;
-    return Curso(data['nome']);
   }
 
   @override
@@ -122,31 +126,29 @@ class HomePageProfState extends State<HomePageProf> {
             );
           }
 
-          return FutureBuilder<List<ModelCanal>>(
-              future: _getDadosTurma(snapshot.data!.docs),
-              builder: (context, dataSnapshot) {
-                if (dataSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Column(
-                    children: [
-                      Expanded(
-                          child: Center(
-                        child: CircularProgressIndicator(),
-                      ))
-                    ],
-                  );
-                }
-                return Column(
-                  children: [
-                    Expanded(
-                        child: ListView.builder(
-                      itemCount: dataSnapshot.data!.length,
-                      itemBuilder: (context, index) {
-                        return ItemListaCanal(dataSnapshot.data![index]);
-                      },
-                    ))
-                  ],
-                );
-              });
+          // FirebaseNotification.instance.configuraNotificacoes(snapshot.data!.docs);
+
+          return Column(
+            children: [
+              Expanded(
+                  child: ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  var data =
+                      snapshot.data!.docs[index].data() as Map<String, dynamic>;
+                  return ItemListaCanal(ModelCanal(
+                      data['curso'],
+                      data['periodo'],
+                      data['semestre'],
+                      snapshot.data!.docs[index].id,
+                      mensagens: [],
+                      ultimaMsg: data['ultimaMsg'],
+                      msgsNaoVisualidazas: 0,
+                      complemento: data['complemento']));
+                },
+              ))
+            ],
+          );
         },
       ),
     );

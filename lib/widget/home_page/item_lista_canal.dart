@@ -12,50 +12,52 @@ class ItemListaCanal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 2),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(12),
-          tileColor: Colors.black26,
-          title: Text(
-            '${canal.nome} ${canal.complemento ?? ''} - ${canal.semestre}° semestre - ${canal.periodo}',
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-          ),
-          subtitle: Text(
-            canal.ultimaMsg ?? '',
-            style: const TextStyle(color: Colors.white38),
-          ),
-          trailing: canal.msgsNaoVisualidazas != null &&
-                  canal.msgsNaoVisualidazas! > 0
-              ? Badge(
-                  label: Text(canal.msgsNaoVisualidazas.toString()),
-                  textStyle: const TextStyle(fontSize: 14),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                )
-              : null,
-          onTap: () {
-            // Navigator.of(context)
-            //     .push(MaterialPageRoute(builder: (_) => Canal(canal.nome, canal.mensagens?? [])));
+        child: _buildListTile(context));
+  }
 
-            Navigator.of(context).push(PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    Canal(canal.nome, canal.mensagens?? []),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  const begin = Offset(1.0, 0.0);
-                  const end = Offset.zero;
-                  const curve = Curves.ease;
+  Widget _buildListTile(context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.all(12),
+      tileColor: Colors.black26,
+      title: Text(
+        '${canal.nome} ${canal.complemento ?? ''} - ${canal.semestre}° semestre - ${canal.periodo}',
+        style: const TextStyle(fontSize: 16, color: Colors.white),
+      ),
+      subtitle: Text(
+        canal.ultimaMsg ?? '',
+        style: const TextStyle(color: Colors.white38),
+      ),
+      trailing: canal.msgsNaoVisualidazas != null &&
+              canal.msgsNaoVisualidazas! > 0
+          ? Badge(
+              label: Text(canal.msgsNaoVisualidazas.toString()),
+              textStyle: const TextStyle(fontSize: 14),
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+            )
+          : null,
+      onTap: () => _tap(context),
+    );
+  }
 
-                  var tween = Tween(begin: begin, end: end)
-                      .chain(CurveTween(curve: curve));
-                  var offsetAnimation = animation.drive(tween);
+  void _tap(context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => Canal(canal)));
 
-                  return SlideTransition(
-                    position: offsetAnimation,
-                    child: child,
-                  );
-                }
-            ));
-          },
-        ));
+    // Navigator.of(context).push(PageRouteBuilder(
+    //     pageBuilder: (context, animation, secondaryAnimation) => Canal(canal),
+    //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+    //       const begin = Offset(1.0, 0.0);
+    //       const end = Offset.zero;
+    //       const curve = Curves.ease;
+    //
+    //       var tween =
+    //           Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+    //       var offsetAnimation = animation.drive(tween);
+    //
+    //       return SlideTransition(
+    //         position: offsetAnimation,
+    //         child: child,
+    //       );
+    //     }));
   }
 }

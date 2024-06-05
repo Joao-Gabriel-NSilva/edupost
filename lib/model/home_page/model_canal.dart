@@ -8,7 +8,11 @@ class ModelCanal {
   String? complemento;
   String periodo;
   int semestre;
+  String id;
 
-  ModelCanal(this.nome, this.periodo, this.semestre,
-      {this.ultimaMsg, this.msgsNaoVisualidazas, this.mensagens});
+  ModelCanal(this.nome, this.periodo, this.semestre, this.id,
+      {this.ultimaMsg,
+      this.msgsNaoVisualidazas,
+      this.mensagens,
+      this.complemento});
 }

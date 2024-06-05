@@ -6,18 +6,23 @@ class Mensagem {
   Timestamp hora;
   Remetente? remetente;
   DocumentReference? remetenteRef;
+  List<String>? lidoPor;
 
-  Mensagem(this.msg, this.hora, {this.remetente, this.remetenteRef});
+  Mensagem(this.msg, this.hora,
+      {this.remetente, this.remetenteRef, this.lidoPor});
 
   factory Mensagem.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options) {
     final data = snapshot.data();
-    return Mensagem(
-      data?['conteudo'],
-      data?['data'],
-      remetenteRef: data?['remetente'],
+    var msg = Mensagem(
+        data?['conteudo'],
+        data?['data'],
+        remetenteRef: data?['remetente'],
+        lidoPor: data?['lidoPor'] != null ? (data?['lidoPor'] as List<dynamic>)
+            .cast<String>() : []
     );
+    return msg;
   }
 
   Future<void> loadRemetente() async {
