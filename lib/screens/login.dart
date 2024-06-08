@@ -72,47 +72,7 @@ class LoginState extends State<Login> {
             ),
             onPressed: !value
                 ? () async {
-                    if (_formKey.currentState!.validate()) {
-                      _animationButton.value = true;
-                      try {
-                        var credential = await FirebaseAuth.instance
-                            .signInWithEmailAndPassword(
-                                email: _controllerLogin.text,
-                                password: _controllerPassword.text);
-
-                        var obj = await FirebaseFirestore.instance
-                            .collection('usuarios')
-                            .doc(credential.user!.email)
-                            .get()
-                            .then((DocumentSnapshot documentSnapshot) {
-                          if (documentSnapshot.exists) {
-                            var data = documentSnapshot.data()!
-                                as Map<String, dynamic>;
-                            return Usuario(data['email'], data['nome'],
-                                data['ehSuperUsuario']);
-                          }
-                          return null;
-                        });
-
-                        if (obj != null) {
-                          Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                  builder: (BuildContext contect) =>
-                                      obj.ehSuperUsuario ? const HomePageProf() : HomePageAluno()),
-                              (a) => false);
-                        }
-                      } catch (ex) {
-                        _animationButton.value = false;
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            duration: Duration(seconds: 5),
-                            content: Text(
-                                'Falha na autenticação. Usuário ou senha incorretos.'),
-                          ),
-                        );
-                      }
-                    }
+                    _auth(context);
                   }
                 : null,
             child: !value
@@ -136,5 +96,47 @@ class LoginState extends State<Login> {
         },
       ),
     );
+  }
+
+  Future<void> _auth(context) async {
+    if (_formKey.currentState!.validate()) {
+      _animationButton.value = true;
+      try {
+        var credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: _controllerLogin.text, password: _controllerPassword.text);
+
+        var usuario = await FirebaseFirestore.instance
+            .collection('usuarios')
+            .doc(credential.user!.email)
+            .get()
+            .then((DocumentSnapshot documentSnapshot) {
+          if (documentSnapshot.exists) {
+            var data = documentSnapshot.data()! as Map<String, dynamic>;
+            return Usuario(data['email'], data['nome'], data['ehSuperUsuario'],
+                data['turma']);
+          }
+          return null;
+        });
+
+        if (usuario != null) {
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (BuildContext contect) => usuario.ehSuperUsuario
+                      ? HomePageProf(usuario)
+                      : HomePageAluno(usuario)),
+              (a) => false);
+        }
+      } catch (ex) {
+        _animationButton.value = false;
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 5),
+            content:
+                Text('Falha na autenticação. Usuário ou senha incorretos.'),
+          ),
+        );
+      }
+    }
   }
 }

@@ -11,10 +11,12 @@ import 'package:flutter/material.dart';
 
 import '../model/home_page/curso.dart';
 import '../model/home_page/model_canal.dart';
+import '../model/usuario.dart';
 import 'envio_de_msg.dart';
 
 class HomePageProf extends StatefulWidget {
-  const HomePageProf({super.key});
+  final Usuario usuario;
+  const HomePageProf(this.usuario, {super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -28,39 +30,39 @@ class HomePageProfState extends State<HomePageProf> {
     super.initState();
   }
 
-  Future<List<ModelCanal>> _getDadosTurma(List<DocumentSnapshot> turmas) async {
-    List<ModelCanal> lista = [];
-    for (var snapshot in turmas) {
-      var data = snapshot.data() as Map<String, dynamic>;
-      var mens = await snapshot.reference
-          .collection('mensagens')
-          .orderBy('data')
-          .get();
-      // List<Mensagem> msgs = [];
-      var naoLidasCount = 0;
-      if (mens.docs.isNotEmpty) {
-        for (var m in mens.docs
-            .map((m) => Mensagem.fromFirestore(
-                m as DocumentSnapshot<Map<String, dynamic>>, null))
-            .toList()) {
-          if (m.lidoPor != null &&
-              !m.lidoPor!.contains(FirebaseAuth.instance.currentUser!.email)) {
-            naoLidasCount++;
-          }
-          // await m.loadRemetente();
-        }
-      }
-
-      var canal = ModelCanal(
-          data['curso'], data['periodo'], data['semestre'], snapshot.id,
-          mensagens: [],
-          ultimaMsg: data['ultimaMsg'],
-          msgsNaoVisualidazas: naoLidasCount,
-          complemento: data['complemento']);
-      lista.add(canal);
-    }
-    return lista;
-  }
+  // Future<List<ModelCanal>> _getDadosTurma(List<DocumentSnapshot> turmas) async {
+  //   List<ModelCanal> lista = [];
+  //   for (var snapshot in turmas) {
+  //     var data = snapshot.data() as Map<String, dynamic>;
+  //     var mens = await snapshot.reference
+  //         .collection('mensagens')
+  //         .orderBy('data')
+  //         .get();
+  //     // List<Mensagem> msgs = [];
+  //     var naoLidasCount = 0;
+  //     if (mens.docs.isNotEmpty) {
+  //       for (var m in mens.docs
+  //           .map((m) => Mensagem.fromFirestore(
+  //               m as DocumentSnapshot<Map<String, dynamic>>, null))
+  //           .toList()) {
+  //         if (m.lidoPor != null &&
+  //             !m.lidoPor!.contains(FirebaseAuth.instance.currentUser!.email)) {
+  //           naoLidasCount++;
+  //         }
+  //         // await m.loadRemetente();
+  //       }
+  //     }
+  //
+  //     var canal = ModelCanal(
+  //         data['curso'], data['periodo'], data['semestre'], snapshot.id,
+  //         mensagens: [],
+  //         ultimaMsg: data['ultimaMsg'],
+  //         msgsNaoVisualidazas: naoLidasCount,
+  //         complemento: data['complemento']);
+  //     lista.add(canal);
+  //   }
+  //   return lista;
+  // }
 
   @override
   Widget build(BuildContext context) {

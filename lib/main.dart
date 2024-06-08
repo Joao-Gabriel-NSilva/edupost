@@ -8,13 +8,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-Future<bool> ehSuperUsuario(bool logado, User? usuario) async {
+import 'model/usuario.dart';
+
+Future<Usuario> ehSuperUsuario(bool logado, User? usuario) async {
   if (logado) {
     var snap = await FirebaseFirestore.instance
         .doc('usuarios/${usuario!.email}')
         .get();
     if (snap.exists) {
-      return snap.data()!['ehSuperUsuario'] as bool;
+      var data = snap.data()!;
+      return Usuario(data['email'], data['nome'],
+          data['ehSuperUsuario'], data['turma']);
     } else {
       FirebaseFirestore.instance.collection('usuarios').add({
         'email': usuario.email,
@@ -23,7 +27,7 @@ Future<bool> ehSuperUsuario(bool logado, User? usuario) async {
       });
     }
   }
-  return false;
+  return Usuario('', '', false, '');
 }
 
 Future<void> main() async {
@@ -37,20 +41,20 @@ Future<void> main() async {
 
   var usuario = FirebaseAuth.instance.currentUser;
   var logado = usuario != null;
-  var superU = await ehSuperUsuario(logado, usuario);
+  var usuarioM = await ehSuperUsuario(logado, usuario);
 
   if(logado) {
     noti.salvarToken(usuario);
   }
 
-  runApp(App(logado, superU));
+  runApp(App(logado, usuarioM));
 }
 
 class App extends StatelessWidget  {
   final bool logado;
-  final bool superU;
+  final Usuario usuario;
 
-  const App(this.logado, this.superU, {super.key});
+  const App(this.logado, this.usuario, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +71,9 @@ class App extends StatelessWidget  {
         // ),
       ),
       home: logado
-          ? superU
-              ? const HomePageProf()
-              : HomePageAluno()
+          ? usuario.ehSuperUsuario
+              ? HomePageProf(usuario)
+              : HomePageAluno(usuario)
           : const Login(),
       debugShowCheckedModeBanner: false,
     );

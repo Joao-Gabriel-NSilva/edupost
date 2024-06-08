@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edupost/screens/login.dart';
 import 'package:edupost/util/util_style.dart';
 import 'package:edupost/widget/home_page/item_lista_canal.dart';
@@ -5,11 +6,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../model/home_page/model_canal.dart';
+import '../model/usuario.dart';
 
 class HomePageAluno extends StatefulWidget {
-  final List<ModelCanal> _canais = [ModelCanal('teste', 'noite', 5, '1')];
+  final Usuario usuario;
 
-  HomePageAluno({super.key});
+  const HomePageAluno(this.usuario, {super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -47,11 +49,7 @@ class HomePageAlunoState extends State<HomePageAluno> {
                   leading: const Icon(Icons.logout),
                   title: const Text('Sair'),
                   onTap: () async {
-                    await FirebaseAuth.instance.signOut();
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (b) => const Login()),
-                        (a) => false);
+                    _signout(context);
                   },
                 ))
               ];
@@ -59,49 +57,50 @@ class HomePageAlunoState extends State<HomePageAluno> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          ElevatedButton(
-              onPressed: () {
-                // Navigator.of(context).push(PageRouteBuilder(
-                //     pageBuilder: (context, animation, secondaryAnimation) =>
-                //         Scaffold(
-                //           appBar: AppBar(
-                //             title: Text('asfasf'),
-                //           ),
-                //         ),
-                //     transitionsBuilder:
-                //         (context, animation, secondaryAnimation, child) {
-                //       const begin = Offset(1.0, 0.0);
-                //       const end = Offset.zero;
-                //       const curve = Curves.ease;
-                //
-                //       var tween = Tween(begin: begin, end: end)
-                //           .chain(CurveTween(curve: curve));
-                //       var offsetAnimation = animation.drive(tween);
-                //
-                //       return SlideTransition(
-                //         position: offsetAnimation,
-                //         child: child,
-                //       );
-                //     }
-                // ));
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (c) => Scaffold(
-                          appBar: AppBar(
-                            title: Text('asfasf'),
-                          ),
-                        )));
-              },
-              child: Text('asdasd'))
-          // Expanded(
-          //     child: ListView.builder(
-          //         itemCount: widget._canais.length,
-          //         itemBuilder: (context, index) {
-          //           return ItemListaCanal(widget._canais[index]);
-          //         }))
-        ],
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('turmas')
+            .doc(widget.usuario.turma)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (!snapshot.hasData) {
+            return const Column(
+              children: [
+                Expanded(
+                    child: Center(
+                  child: CircularProgressIndicator(),
+                ))
+              ],
+            );
+          }
+
+          // FirebaseNotification.instance.configuraNotificacoes(snapshot.data!.docs);
+          var data = snapshot.data!.data() as Map<String, dynamic>;
+          return Column(
+            children: [
+              ItemListaCanal(
+                  ModelCanal(data['curso'], data['periodo'], data['semestre'],
+                      snapshot.data!.id,
+                      mensagens: [],
+                      ultimaMsg: data['ultimaMsg'],
+                      msgsNaoVisualidazas: 0,
+                      complemento: data['complemento']),
+                  false),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  Future<void> _signout(context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (b) => const Login()),
+            (a) => false);
   }
 }

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import '../model/home_page/mensagem.dart';
 import 'package:intl/intl.dart';
 
@@ -120,48 +122,48 @@ class CanalState extends State<Canal> {
                               shape: const RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10))),
-                              // contentPadding: const EdgeInsets.all(12),
                             ),
                           );
                         },
                       ),
                     ),
-                    Container(
-                      decoration: const BoxDecoration(color: Colors.black38),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 16, top: 10, bottom: 10, right: 8),
-                              child: Expanded(
-                                child: TextField(
-                                  controller: widget._controller,
-                                  maxLines: null,
-                                  keyboardType: TextInputType.multiline,
-                                  style: const TextStyle(color: Colors.white),
-                                  decoration: InputDecoration(
-                                    border: const OutlineInputBorder(),
-                                    labelText: 'Mensagem',
-                                    labelStyle: _labelTextStyle(),
-                                    enabledBorder: _enabledBorder(),
-                                    focusedBorder: _focusBorder(),
+                    if(widget.ehAdm) Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        decoration: BoxDecoration(color: Colors.black38, border: Border.all(color: UtilStyle.instance.corPrimaria, width: 0.5)),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 0, top: 0, bottom: 0, right: 0),
+                                child: Expanded(
+                                  child: TextField(
+                                    controller: widget._controller,
+                                    maxLines: null,
+                                    keyboardType: TextInputType.multiline,
+                                    style: const TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      border: const OutlineInputBorder(),
+                                      labelStyle: _labelTextStyle(),
+                                      focusedBorder: _focusBorder(),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: IconButton(
-                                onPressed: () => _enviaMsg(context),
-                                icon: const Icon(
-                                  Icons.send,
-                                  color: Colors.white,
-                                  size: 36,
-                                )),
-                          )
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: IconButton(
+                                  onPressed: () => _enviaMsg(context),
+                                  icon: const Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                    size: 36,
+                                  )),
+                            )
+                          ],
+                        ),
                       ),
                     )
                   ],
@@ -202,18 +204,11 @@ class CanalState extends State<Canal> {
   }
 
   InputBorder _focusBorder() {
-    return OutlineInputBorder(
+    return const OutlineInputBorder(
       borderSide: BorderSide(
-        color: UtilStyle.instance.corPrimaria,
+        color: Colors.transparent,
       ),
     );
   }
 
-  InputBorder _enabledBorder() {
-    return OutlineInputBorder(
-      borderSide: BorderSide(
-        color: UtilStyle.instance.corPrimaria,
-      ),
-    );
-  }
 }
