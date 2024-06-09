@@ -69,12 +69,4 @@ class HomePageAlunoState extends State<HomePageAluno> {
       ),
     );
   }
-
-  Future<void> _signout(context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (b) => const Login()),
-            (a) => false);
-  }
 }

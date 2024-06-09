@@ -17,7 +17,7 @@ class MainAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: Text(titulo??'EduPost'),
-      backgroundColor: UtilStyle.instance.corPrimaria.withOpacity(0.6),
+      backgroundColor: UtilStyle.instance.corPrimaria,
       foregroundColor: Colors.white,
       actions: [
         if(mostraActions) PopupMenuButton(

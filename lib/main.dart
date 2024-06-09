@@ -50,19 +50,22 @@ Future<void> main() async {
     noti.salvarToken(usuario);
   }
 
-  runApp(App(logado, usuarioM));
+  var themeManager = UtilStyle.instance.themeManager;
+
+  runApp(App(logado, usuarioM, themeManager));
 }
 
 class App extends StatelessWidget {
   final bool logado;
   final Usuario usuario;
+  final ThemeManager themeManager;
 
-  const App(this.logado, this.usuario, {super.key});
+  const App(this.logado, this.usuario, this.themeManager, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeManager(),
+    return ChangeNotifierProvider.value(
+      value: themeManager,
       child: Consumer<ThemeManager>(
         builder: (context, themeManager, child) {
           return MaterialApp(

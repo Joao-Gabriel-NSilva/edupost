@@ -14,7 +14,7 @@ class UtilStyle {
 
   static String? tema;
 
-  final Color corPrimaria = Colors.lightGreen.shade900;
+  final Color corPrimaria = const Color.fromRGBO(27, 94, 32, 1);
   final Color corErro = const Color.fromRGBO(186, 26, 26, 1);
 
   Color get backGroundColor {
@@ -36,7 +36,7 @@ class UtilStyle {
     return !themeManager.isDarkMode ? whiteThemeTextFieldColor : darkThemeTextFieldColor;
   }
 
-  final Color darkThemeBackGround = Colors.white12;
+  final Color darkThemeBackGround = const Color.fromRGBO(23, 23, 23, 1);
   final Color darkThemeForeGround = Colors.white;
   final Color darkThemeTileColor = Colors.black26;
   final Color darkThemeTitleColor = Colors.white;

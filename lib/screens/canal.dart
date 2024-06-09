@@ -53,25 +53,37 @@ class CanalState extends State<Canal> {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Column(
-            children: [
-              Expanded(
-                  child: Center(
-                child: CircularProgressIndicator(),
-              ))
-            ],
-          );
+          return Scaffold(
+              backgroundColor: UtilStyle.instance.backGroundColor,
+              appBar: MainAppBarWidget(
+                false,
+                titulo: widget.canal.nome,
+              ),
+              body: const Column(
+                children: [
+                  Expanded(
+                      child: Center(
+                    child: CircularProgressIndicator(),
+                  ))
+                ],
+              ));
         }
 
         if (!snapshot.hasData) {
-          return const Column(
-            children: [
-              Expanded(
-                  child: Center(
-                child: CircularProgressIndicator(),
-              ))
-            ],
-          );
+          return Scaffold(
+              backgroundColor: UtilStyle.instance.backGroundColor,
+              appBar: MainAppBarWidget(
+                false,
+                titulo: widget.canal.nome,
+              ),
+              body: const Column(
+                children: [
+                  Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ))
+                ],
+              ));
         }
 
         if (snapshot.data!.docs.isEmpty) {
@@ -125,7 +137,7 @@ class CanalState extends State<Canal> {
                                   fontSize: 16,
                                   color: UtilStyle.instance.titleColor)),
                           subtitle: Text(
-                              '${msg.remetente} - ${DateFormat('dd/MM/yyyy H:m').format(msg.hora.toDate())}',
+                              '${msg.remetente} - ${DateFormat('dd/MM/yyyy HH:mm').format(msg.hora.toDate())}',
                               style: TextStyle(
                                   fontSize: 16,
                                   color: UtilStyle.instance.subTitleColor)),
@@ -200,14 +212,14 @@ class CanalState extends State<Canal> {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(left: 8.0),
+                padding: const EdgeInsets.only(left: 0),
                 child: TextField(
                   controller: widget._controller,
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                   style: TextStyle(color: UtilStyle.instance.foreGroundColor),
                   decoration: InputDecoration(
-                    // border: const OutlineInputBorder(),
+                    border: InputBorder.none,
                     labelStyle: _labelTextStyle(),
                     focusedBorder: _focusBorder(),
                   ),

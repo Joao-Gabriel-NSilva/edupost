@@ -23,80 +23,77 @@ class HomePageProf extends StatefulWidget {
 }
 
 class HomePageProfState extends State<HomePageProf> {
+  late ThemeManager themeManager;
+
   @override
   void initState() {
+    themeManager = ThemeManager();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeManager.instance,
-      child: Consumer<ThemeManager>(builder: (context, themeManager, child) {
-        return StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('turmas').snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Column(
-                children: [
-                  Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ))
-                ],
-              );
-            }
-            if (!snapshot.hasData) {
-              return const Column(
-                children: [
-                  Expanded(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ))
-                ],
-              );
-            }
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('turmas').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Column(
+            children: [
+              Expanded(
+                  child: Center(
+                child: CircularProgressIndicator(),
+              ))
+            ],
+          );
+        }
+        if (!snapshot.hasData) {
+          return const Column(
+            children: [
+              Expanded(
+                  child: Center(
+                child: CircularProgressIndicator(),
+              ))
+            ],
+          );
+        }
 
-            // FirebaseNotification.instance.configuraNotificacoes(snapshot.data!.docs);
+        // FirebaseNotification.instance.configuraNotificacoes(snapshot.data!.docs);
 
-            return Scaffold(
-                backgroundColor: UtilStyle.instance.backGroundColor,
-                appBar: MainAppBarWidget(usuario: widget.usuario, true),
-                floatingActionButton: FloatingActionButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (c) => const EnvioDeMsg()));
+        return Scaffold(
+            backgroundColor: UtilStyle.instance.backGroundColor,
+            appBar: MainAppBarWidget(usuario: widget.usuario, true),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                    MaterialPageRoute(builder: (c) => const EnvioDeMsg()));
+              },
+              backgroundColor: UtilStyle.instance.corPrimaria,
+              foregroundColor: Colors.white,
+              child: const Icon(
+                Icons.send,
+              ),
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                    child: ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var data = snapshot.data!.docs[index].data()
+                        as Map<String, dynamic>;
+                    return ItemListaCanal(
+                        ModelCanal(data['curso'], data['periodo'],
+                            data['semestre'], snapshot.data!.docs[index].id,
+                            mensagens: [],
+                            ultimaMsg: data['ultimaMsg'],
+                            msgsNaoVisualidazas: 0,
+                            complemento: data['complemento']),
+                        true);
                   },
-                  backgroundColor: UtilStyle.instance.corPrimaria,
-                  foregroundColor: Colors.white,
-                  child: const Icon(
-                    Icons.send,
-                  ),
-                ),
-                body: Column(
-                  children: [
-                    Expanded(
-                        child: ListView.builder(
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, index) {
-                            var data = snapshot.data!.docs[index].data()
-                            as Map<String, dynamic>;
-                            return ItemListaCanal(
-                                ModelCanal(data['curso'], data['periodo'],
-                                    data['semestre'], snapshot.data!.docs[index].id,
-                                    mensagens: [],
-                                    ultimaMsg: data['ultimaMsg'],
-                                    msgsNaoVisualidazas: 0,
-                                    complemento: data['complemento']),
-                                true);
-                          },
-                        ))
-                  ],
-                ));
-          },
-        );
-      }),
+                ))
+              ],
+            ));
+      },
     );
-
   }
 }
