@@ -20,7 +20,7 @@ class ItemListaCanal extends StatelessWidget {
   Widget _buildListTile(context) {
     var msg = canal.ultimaMsg ?? '';
     if(msg.contains('\n')) {
-      msg = msg.split('\n')[0];
+      msg = msg.split('\n').last;
     }
     if(msg.length > 50) {
       msg = msg.substring(0, 50);

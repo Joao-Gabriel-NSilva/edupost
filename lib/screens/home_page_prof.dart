@@ -57,7 +57,7 @@ class HomePageProfState extends State<HomePageProf> {
           );
         }
 
-        // FirebaseNotification.instance.configuraNotificacoes(snapshot.data!.docs);
+        FirebaseNotification.instance.configuraNotificacoes(snapshot.data!.docs);
 
         return Scaffold(
             backgroundColor: UtilStyle.instance.backGroundColor,

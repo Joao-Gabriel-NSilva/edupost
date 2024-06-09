@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../model/home_page/model_canal.dart';
 import '../model/usuario.dart';
+import '../notification/firebase_notification.dart';
 import '../widget/home_page/main_app_bar_widget.dart';
 
 class HomePageAluno extends StatefulWidget {
@@ -51,7 +52,8 @@ class HomePageAlunoState extends State<HomePageAluno> {
             );
           }
 
-          // FirebaseNotification.instance.configuraNotificacoes(snapshot.data!.docs);
+          FirebaseNotification.instance.configuraNotificacoes([snapshot.data!]);
+
           var data = snapshot.data!.data() as Map<String, dynamic>;
           return Column(
             children: [

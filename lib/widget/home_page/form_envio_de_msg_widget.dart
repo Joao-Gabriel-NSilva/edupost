@@ -125,7 +125,7 @@ class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
                     controller: widget._controllerMsg,
                     maxLines: null,
                     keyboardType: TextInputType.multiline,
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: UtilStyle.instance.foreGroundColor),
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: 'Mensagem',

@@ -20,7 +20,6 @@ class FirebaseNotification {
   }
 
   Future<void> initNotifications() async {
-    await _firebaseMessagin.requestPermission();
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   }
 
@@ -32,6 +31,7 @@ class FirebaseNotification {
   }
 
   void configuraNotificacoes(chatsCarregados) async {
+    await _firebaseMessagin.requestPermission();
     for (var documento in chatsCarregados) {
       _firebaseMessagin.subscribeToTopic(documento.id);
     }
