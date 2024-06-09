@@ -3,8 +3,11 @@ import 'package:edupost/notification/firebase_notification.dart';
 import 'package:edupost/screens/home_page_aluno.dart';
 import 'package:edupost/screens/home_page_prof.dart';
 import 'package:edupost/screens/login.dart';
+import 'package:edupost/util/util_style.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'cache/theme_manager.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -17,8 +20,8 @@ Future<Usuario> ehSuperUsuario(bool logado, User? usuario) async {
         .get();
     if (snap.exists) {
       var data = snap.data()!;
-      return Usuario(data['email'], data['nome'],
-          data['ehSuperUsuario'], data['turma']);
+      return Usuario(
+          data['email'], data['nome'], data['ehSuperUsuario'], data['turma']);
     } else {
       FirebaseFirestore.instance.collection('usuarios').add({
         'email': usuario.email,
@@ -36,21 +39,21 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final noti =  FirebaseNotification.instance;
+  final noti = FirebaseNotification.instance;
   noti.initNotifications();
 
   var usuario = FirebaseAuth.instance.currentUser;
   var logado = usuario != null;
   var usuarioM = await ehSuperUsuario(logado, usuario);
 
-  if(logado) {
+  if (logado) {
     noti.salvarToken(usuario);
   }
 
   runApp(App(logado, usuarioM));
 }
 
-class App extends StatelessWidget  {
+class App extends StatelessWidget {
   final bool logado;
   final Usuario usuario;
 
@@ -58,24 +61,22 @@ class App extends StatelessWidget  {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Edupost',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: false,
-        // pageTransitionsTheme: PageTransitionsTheme(
-        //   builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
-        //     TargetPlatform.values,
-        //     value: (dynamic _) => const FadeUpwardsPageTransitionsBuilder(),
-        //   ),
-        // ),
+    return ChangeNotifierProvider(
+      create: (_) => ThemeManager(),
+      child: Consumer<ThemeManager>(
+        builder: (context, themeManager, child) {
+          return MaterialApp(
+            title: 'Edupost',
+            theme: themeManager.themeData,
+            home: logado
+                ? usuario.ehSuperUsuario
+                    ? HomePageProf(usuario)
+                    : HomePageAluno(usuario)
+                : const Login(),
+            debugShowCheckedModeBanner: false,
+          );
+        },
       ),
-      home: logado
-          ? usuario.ehSuperUsuario
-              ? HomePageProf(usuario)
-              : HomePageAluno(usuario)
-          : const Login(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }

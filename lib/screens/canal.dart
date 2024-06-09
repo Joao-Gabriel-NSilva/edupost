@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:edupost/widget/home_page/main_app_bar_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,141 +37,114 @@ class CanalState extends State<Canal> {
         .map((m) => Mensagem.fromFirestore(
             m as DocumentSnapshot<Map<String, dynamic>>, null))
         .toList();
-    for (var me in msgs) {
-      await me.loadRemetente();
-    }
+    // for (var me in msgs) {
+    //   await me.loadRemetente();
+    // }
     return msgs;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white12,
-      appBar: AppBar(
-        title: Text(widget.canal.nome),
-        backgroundColor: UtilStyle.instance.corPrimaria.withOpacity(0.6),
-        foregroundColor: Colors.white,
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .doc('turmas/${widget.canal.id}')
-            .collection('mensagens')
-            .orderBy('data')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .doc('turmas/${widget.canal.id}')
+          .collection('mensagens')
+          .orderBy('data')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Column(
+            children: [
+              Expanded(
+                  child: Center(
+                child: CircularProgressIndicator(),
+              ))
+            ],
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Column(
+            children: [
+              Expanded(
+                  child: Center(
+                child: CircularProgressIndicator(),
+              ))
+            ],
+          );
+        }
+
+        if (snapshot.data!.docs.isEmpty) {
+          return Scaffold(
+            backgroundColor: UtilStyle.instance.backGroundColor,
+            appBar: MainAppBarWidget(
+              false,
+              titulo: widget.canal.nome,
+            ),
+            body: Column(
+              children: [
+                const Expanded(child: Column()),
+                if (widget.ehAdm) _buildTextField()
+              ],
+            ),
+          );
+        }
+
+        List<Mensagem> msgs = snapshot.data!.docs
+            .map((m) => Mensagem.fromFirestore(
+                m as DocumentSnapshot<Map<String, dynamic>>, null))
+            .toList();
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            _scrollController
+                .jumpTo(_scrollController.position.maxScrollExtent);
           }
-          if (!snapshot.hasData) {
-            return const Column(
+        });
+
+        return Scaffold(
+            backgroundColor: UtilStyle.instance.backGroundColor,
+            appBar: MainAppBarWidget(
+              false,
+              titulo: widget.canal.nome,
+            ),
+            body: Column(
               children: [
                 Expanded(
-                    child: Center(
-                  child: CircularProgressIndicator(),
-                ))
-              ],
-            );
-          }
-          if (snapshot.data!.docs.isEmpty) {
-            return const Column();
-          }
-
-          return FutureBuilder(
-              future: _getMensagens(snapshot),
-              builder: (context, dataSnapshot) {
-                if (dataSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Column(
-                    children: [
-                      Expanded(
-                          child: Center(
-                        child: CircularProgressIndicator(),
-                      ))
-                    ],
-                  );
-                }
-                if (!dataSnapshot.hasData) {
-                  return const Column();
-                }
-
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (_scrollController.hasClients) {
-                    _scrollController
-                        .jumpTo(_scrollController.position.maxScrollExtent);
-                  }
-                });
-
-                return Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        itemCount: dataSnapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          var msg = dataSnapshot.data![index];
-                          return Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 6.0, right: 4, left: 4),
-                            child: ListTile(
-                              title: Text(msg.msg,
-                                  style: const TextStyle(
-                                      fontSize: 16, color: Colors.white)),
-                              subtitle: Text(
-                                  '${msg.remetente?.nome} - ${DateFormat('dd/MM/yyyy H:m').format(msg.hora.toDate())}',
-                                  style: const TextStyle(
-                                      fontSize: 16, color: Colors.white38)),
-                              tileColor: Colors.black26,
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    if(widget.ehAdm) Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        decoration: BoxDecoration(color: Colors.black38, border: Border.all(color: UtilStyle.instance.corPrimaria, width: 0.5)),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 0, top: 0, bottom: 0, right: 0),
-                                child: Expanded(
-                                  child: TextField(
-                                    controller: widget._controller,
-                                    maxLines: null,
-                                    keyboardType: TextInputType.multiline,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      border: const OutlineInputBorder(),
-                                      labelStyle: _labelTextStyle(),
-                                      focusedBorder: _focusBorder(),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: IconButton(
-                                  onPressed: () => _enviaMsg(context),
-                                  icon: const Icon(
-                                    Icons.send,
-                                    color: Colors.white,
-                                    size: 36,
-                                  )),
-                            )
-                          ],
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: msgs.length,
+                    itemBuilder: (context, index) {
+                      var msg = msgs[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                            bottom: 6.0, right: 4, left: 4),
+                        child: ListTile(
+                          title: Text(msg.msg,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: UtilStyle.instance.titleColor)),
+                          subtitle: Text(
+                              '${msg.remetente} - ${DateFormat('dd/MM/yyyy H:m').format(msg.hora.toDate())}',
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: UtilStyle.instance.subTitleColor)),
+                          tileColor: UtilStyle.instance.tileColor,
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: UtilStyle.instance.corPrimaria,
+                                  width: 1),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(10))),
                         ),
-                      ),
-                    )
-                  ],
-                );
-              });
-        },
-      ),
+                      );
+                    },
+                  ),
+                ),
+                if (widget.ehAdm) _buildTextField()
+              ],
+            ));
+      },
     );
   }
 
@@ -179,12 +153,12 @@ class CanalState extends State<Canal> {
       var email = FirebaseAuth.instance.currentUser!.email;
       var conteudo = widget._controller.text;
       var remetente = FirebaseFirestore.instance.doc('usuarios/$email');
-      // var nome = (await remetente.get()).data()!['nome'];
+      var nome = (await remetente.get()).data()!['nome'];
       var t = FirebaseFirestore.instance.doc('turmas/${widget.canal.id}');
       await t.collection('mensagens').add({
         'conteudo': conteudo,
         'data': Timestamp.now(),
-        'remetente': remetente,
+        'remetente': nome,
         'lidoPor': []
       });
 
@@ -211,4 +185,46 @@ class CanalState extends State<Canal> {
     );
   }
 
+  Widget _buildTextField() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, right: 4, top: 8, bottom: 8),
+      child: Container(
+        decoration: BoxDecoration(
+            color: UtilStyle.instance.textFieldBackGroundColor,
+            border: Border.all(
+              color: UtilStyle.instance.corPrimaria,
+              width: 1,
+            ),
+            borderRadius: BorderRadius.circular(10)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: TextField(
+                  controller: widget._controller,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  style: TextStyle(color: UtilStyle.instance.foreGroundColor),
+                  decoration: InputDecoration(
+                    // border: const OutlineInputBorder(),
+                    labelStyle: _labelTextStyle(),
+                    focusedBorder: _focusBorder(),
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () => _enviaMsg(context),
+              icon: Icon(
+                Icons.send,
+                color: UtilStyle.instance.foreGroundColor,
+                size: 36,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

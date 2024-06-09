@@ -1,3 +1,4 @@
+import 'package:edupost/util/util_style.dart';
 import 'package:flutter/material.dart';
 
 import '../../model/home_page/model_canal.dart';
@@ -21,19 +22,23 @@ class ItemListaCanal extends StatelessWidget {
     if(msg.contains('\n')) {
       msg = msg.split('\n')[0];
     }
-    if(msg.length > 20) {
-      msg = msg.substring(20);
+    if(msg.length > 50) {
+      msg = msg.substring(0, 50);
     }
     return ListTile(
       contentPadding: const EdgeInsets.all(12),
-      tileColor: Colors.black26,
+      shape: RoundedRectangleBorder(
+          side: BorderSide(color: UtilStyle.instance.corPrimaria, width: 1),
+          borderRadius:
+          const BorderRadius.all(Radius.circular(10))),
+      tileColor: UtilStyle.instance.tileColor,
       title: Text(
         '${canal.nome} ${canal.complemento ?? ''} - ${canal.semestre}° semestre - ${canal.periodo}',
-        style: const TextStyle(fontSize: 16, color: Colors.white),
+        style: TextStyle(fontSize: 16, color: UtilStyle.instance.titleColor),
       ),
       subtitle: Text(
         msg,
-        style: const TextStyle(color: Colors.white38),
+        style: TextStyle(color: UtilStyle.instance.subTitleColor),
       ),
       trailing: canal.msgsNaoVisualidazas != null &&
               canal.msgsNaoVisualidazas! > 0

@@ -64,7 +64,14 @@ class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
       future: _getTurmas(),
       builder: (context, d) {
         if (d.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          const Column(
+            children: [
+              Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ))
+            ],
+          );
         }
         if (!d.hasData) {
           return const Text(
@@ -91,7 +98,7 @@ class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
                   hint: 'Selecione a(s) turma(s)',
                   borderColor: turmaValida
                       ? UtilStyle.instance.corPrimaria
-                      : const Color.fromRGBO(186, 26, 26, 1),
+                      : UtilStyle.instance.corErro,
                   borderWidth: 1.5,
                   dropdownBackgroundColor: Colors.black,
                   fieldBackgroundColor: Colors.transparent,
@@ -101,12 +108,12 @@ class FormEnvioDeMsgWidgetState extends State<FormEnvioDeMsgWidget> {
                 ),
                 turmaValida
                     ? const Text('')
-                    : const Padding(
-                        padding: EdgeInsets.only(left: 10, top: 10),
+                    : Padding(
+                        padding: const EdgeInsets.only(left: 10, top: 10),
                         child: Text(
                           'Selecione pelo menos uma turma',
                           style: TextStyle(
-                              color: Color.fromRGBO(186, 26, 26, 1),
+                              color: UtilStyle.instance.corErro,
                               fontSize: 11),
                         ),
                       ),

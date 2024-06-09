@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../model/home_page/model_canal.dart';
 import '../model/usuario.dart';
+import '../widget/home_page/main_app_bar_widget.dart';
 
 class HomePageAluno extends StatefulWidget {
   final Usuario usuario;
@@ -28,35 +29,8 @@ class HomePageAlunoState extends State<HomePageAluno> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white12,
-      appBar: AppBar(
-        title: const Text('EduPost'),
-        backgroundColor: UtilStyle.instance.corPrimaria.withOpacity(0.6),
-        foregroundColor: Colors.white,
-        actions: [
-          PopupMenuButton(
-            onSelected: (a) {},
-            itemBuilder: (BuildContext context) {
-              return [
-                const PopupMenuItem(
-                  child: ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('Configurações'),
-                  ),
-                ),
-                PopupMenuItem(
-                    child: ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text('Sair'),
-                  onTap: () async {
-                    _signout(context);
-                  },
-                ))
-              ];
-            },
-          ),
-        ],
-      ),
+      backgroundColor: UtilStyle.instance.backGroundColor,
+      appBar: MainAppBarWidget(usuario:widget.usuario, true),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('turmas')

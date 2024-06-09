@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edupost/notification/firebase_notification.dart';
 import 'package:edupost/widget/home_page/form_envio_de_msg_widget.dart';
+import 'package:edupost/widget/home_page/main_app_bar_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
@@ -29,11 +30,8 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.white12,
-      appBar: AppBar(
-          title: const Text('Enviar aviso para turmas'),
-          backgroundColor: UtilStyle.instance.corPrimaria.withOpacity(0.6),
-          foregroundColor: Colors.white),
+      backgroundColor: UtilStyle.instance.backGroundColor,
+      appBar: MainAppBarWidget(false, titulo: 'Enviar aviso para turmas',),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -111,13 +109,13 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
       var conteudo = _controllerMsg.text;
       try {
         var remetente = FirebaseFirestore.instance.doc('usuarios/$email');
-        // var nome = (await remetente.get()).data()!['nome'];
+        var nome = (await remetente.get()).data()!['nome'];
         for (var item in _selectController.selectedOptions) {
           var t = FirebaseFirestore.instance.doc('turmas/${item.value!}');
           await t.collection('mensagens').add({
             'conteudo': conteudo,
             'data': Timestamp.now(),
-            'remetente': remetente,
+            'remetente': nome,
             'lidoPor': []
           });
 
