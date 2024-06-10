@@ -33,6 +33,7 @@ Future<Usuario> ehSuperUsuario(bool logado, User? usuario) async {
   return Usuario('', '', false, '');
 }
 
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(

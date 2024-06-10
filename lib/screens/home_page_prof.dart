@@ -37,23 +37,31 @@ class HomePageProfState extends State<HomePageProf> {
       stream: FirebaseFirestore.instance.collection('turmas').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Column(
-            children: [
-              Expanded(
-                  child: Center(
-                child: CircularProgressIndicator(),
-              ))
-            ],
-          );
+          return Scaffold(
+              backgroundColor: UtilStyle.instance.backGroundColor,
+              appBar: MainAppBarWidget(
+                true,
+              ),
+              body: const Column(
+                children: [
+                  Expanded(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ))
+                ],
+              ));
         }
         if (!snapshot.hasData) {
-          return const Column(
-            children: [
-              Expanded(
-                  child: Center(
-                child: CircularProgressIndicator(),
-              ))
-            ],
+          return Scaffold(
+            backgroundColor: UtilStyle.instance.backGroundColor,
+            appBar: MainAppBarWidget(
+              true,
+            ),
+            body: const Column(
+              children: [
+                Center(child: Text('Nenhuma turma cadastrada'))
+              ],
+            ),
           );
         }
 

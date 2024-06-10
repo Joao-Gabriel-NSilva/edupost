@@ -20,6 +20,9 @@ class FirebaseNotification {
   }
 
   Future<void> initNotifications() async {
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+            alert: true, badge: true, sound: true);
     FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
   }
 
@@ -37,19 +40,19 @@ class FirebaseNotification {
     }
   }
 
-  // Future<List<String>> obterTokens(
-  //     DocumentReference<Map<String, dynamic>> turma) async {
-  //   var usuarios = await FirebaseFirestore.instance
-  //       .collection('usuarios')
-  //       .where('turma', isEqualTo: turma)
-  //       .get();
-  //   var tokens = <String>[];
-  //   for (var u in usuarios.docs) {
-  //     var data = u.data();
-  //     if (data['token'] != null) {
-  //       tokens.add(data['token']);
-  //     }
-  //   }
-  //   return tokens;
-  // }
+// Future<List<String>> obterTokens(
+//     DocumentReference<Map<String, dynamic>> turma) async {
+//   var usuarios = await FirebaseFirestore.instance
+//       .collection('usuarios')
+//       .where('turma', isEqualTo: turma)
+//       .get();
+//   var tokens = <String>[];
+//   for (var u in usuarios.docs) {
+//     var data = u.data();
+//     if (data['token'] != null) {
+//       tokens.add(data['token']);
+//     }
+//   }
+//   return tokens;
+// }
 }

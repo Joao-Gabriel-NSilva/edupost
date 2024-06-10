@@ -1,8 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
-//var serviceAccount = require("./auth/edupost-firebase-firebase-adminsdk-bnvva-ca80dfd548.json");
-
 admin.initializeApp({
 
 });
@@ -14,17 +12,20 @@ exports.myFunction = functions.firestore
         const turmaRef = admin.firestore().collection("turmas").doc(context.params.idDocumento);
         const turmaSnapshot = await turmaRef.get();
 
-        //const nome = turmaSnapshot.data()["curso"];
-        //const semestre = turmaSnapshot.data()["semestre"];
+        const nome = turmaSnapshot.get("curso");
+        const semestre = turmaSnapshot.get("semestre");
         const conteudo = snapshot.data()["conteudo"];
 
         return admin.messaging().send(
             {
                 notification: {
-                    title: snapshot.data()["remetente"],
-                    body: conteudo
+                    title: `${nome} ${semestre}°`,
+                    body: `${snapshot.data()["remetente"]}: ${conteudo}`
                 },
-                topic: context.params.idDocumento
+                topic: context.params.idDocumento,
+                data: {
+                    turma: context.params.idDocumento
+                }
             }
         );
     });

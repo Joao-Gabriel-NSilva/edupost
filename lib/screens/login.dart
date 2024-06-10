@@ -41,6 +41,19 @@ class LoginState extends State<Login> {
                 FormLoginWidget(
                     _formKey, _controllerLogin, _controllerPassword),
                 _buildButton(context),
+                const SizedBox(
+                  height: 10,
+                ),
+                Center(
+                    child: InkWell(
+                  child: Text(
+                    'Esqueceu a senha?',
+                    style: TextStyle(color: Colors.blueAccent.shade100),
+                  ),
+                  onTap: () async {
+                    _recuperarSenha(context);
+                  },
+                )),
               ],
             ))
           ],
@@ -136,6 +149,53 @@ class LoginState extends State<Login> {
                 Text('Falha na autenticação. Usuário ou senha incorretos.'),
           ),
         );
+      }
+    }
+  }
+
+  Future<void> _recuperarSenha(context) async {
+    if (_controllerLogin.text.isEmpty) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 5),
+          content: Text(
+              'Informe o seu email, um link para redefinição de senha será enviado.'),
+        ),
+      );
+    } else {
+      try {
+        await FirebaseAuth.instance
+            .sendPasswordResetEmail(email: _controllerLogin.text);
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 5),
+            content: Text(
+                'Email enviado.'),
+          ),
+        );
+      } on FirebaseAuthException catch (e) {
+        if(e.code == 'invalid-email') {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              duration: Duration(seconds: 5),
+              content: Text(
+                  'Email inválido. Informe um email válido e tente novamente.'),
+            ),
+          );
+        }
+        if(e.code == 'user-not-found') {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              duration: Duration(seconds: 5),
+              content: Text(
+                  'Usuário não encontrado.'),
+            ),
+          );
+        }
       }
     }
   }

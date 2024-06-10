@@ -41,14 +41,14 @@ class UtilStyle {
   final Color darkThemeTileColor = Colors.black26;
   final Color darkThemeTitleColor = Colors.white;
   final Color darkThemeSubTitleColor = Colors.white38;
-  final Color darkThemeTextFieldColor = Colors.black38;
+  final Color darkThemeTextFieldColor = Colors.black;
 
   final Color whiteThemeBackground = Colors.white;
   final Color whiteThemeForeground = Colors.black;
   final Color whiteThemeTileColor = Colors.transparent;
   final Color whiteThemeTitleColor = Colors.black;
   final Color whiteThemeSubTitleColor = Colors.grey;
-  final Color whiteThemeTextFieldColor = Colors.white38;
+  final Color whiteThemeTextFieldColor = Colors.white;
 
   void setarTema() async {
     themeManager.toggleDarkMode();

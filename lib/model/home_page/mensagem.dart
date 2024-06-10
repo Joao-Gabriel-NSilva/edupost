@@ -5,11 +5,15 @@ class Mensagem {
   String msg;
   Timestamp hora;
   String? remetente;
+  bool? anexo;
+  String? path;
+  String? extensao;
+  String? url;
   // DocumentReference? remetenteRef;
   List<String>? lidoPor;
 
   Mensagem(this.msg, this.hora, this.remetente,
-      {this.lidoPor});
+      {this.lidoPor, this.anexo, this.path, this.extensao, this.url});
 
   factory Mensagem.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
@@ -20,7 +24,11 @@ class Mensagem {
         data?['data'],
         data?['remetente'],
         lidoPor: data?['lidoPor'] != null ? (data?['lidoPor'] as List<dynamic>)
-            .cast<String>() : []
+            .cast<String>() : [],
+        anexo: data?['anexo'] ?? false,
+        path: data?['path'],
+        extensao: data?['extensao'],
+        url: data?['url']
     );
     return msg;
   }
