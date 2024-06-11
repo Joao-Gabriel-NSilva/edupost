@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:edupost/screens/configuracoes.dart';
 import 'package:edupost/screens/login.dart';
 import 'package:edupost/util/util_style.dart';
 import 'package:edupost/widget/home_page/item_lista_canal.dart';
@@ -32,6 +33,7 @@ class HomePageAlunoState extends State<HomePageAluno> {
     return Scaffold(
       backgroundColor: UtilStyle.instance.backGroundColor,
       appBar: MainAppBarWidget(usuario:widget.usuario, true),
+      drawer: buildDrawer(context, widget.usuario),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('turmas')
@@ -68,6 +70,66 @@ class HomePageAlunoState extends State<HomePageAluno> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Drawer buildDrawer(BuildContext context, Usuario usuario) {
+    return Drawer(
+      backgroundColor: UtilStyle.instance.backGroundColor,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          Container(
+            height: 80,
+            color: UtilStyle.instance.corPrimaria,
+            padding: const EdgeInsets.only(left: 16),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'MENU',
+              style: TextStyle(
+                color: UtilStyle.instance.textBackGroundColor,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.settings, color: UtilStyle.instance.textBackGroundColor),
+            title: Text(
+              'Configurações',
+              style: TextStyle(
+                  color: UtilStyle.instance.textBackGroundColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Configuracoes(usuario)),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.logout, color: UtilStyle.instance.textBackGroundColor),
+            title: Text(
+              'Sair',
+              style: TextStyle(
+                  color: UtilStyle.instance.textBackGroundColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (b) => const Login()),
+                    (a) => false,
+              );
+            },
+          ),
+        ],
       ),
     );
   }
