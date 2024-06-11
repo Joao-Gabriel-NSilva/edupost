@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-
-import '../cache/shared_preferences_helper.dart';
 import '../cache/theme_manager.dart';
 
 class UtilStyle {
@@ -35,6 +33,9 @@ class UtilStyle {
   Color get textFieldBackGroundColor {
     return !themeManager.isDarkMode ? whiteThemeTextFieldColor : darkThemeTextFieldColor;
   }
+  Color get textBackGroundColor {
+    return !themeManager.isDarkMode ? darkThemeTextColor : whiteThemeTextColor;
+  }
 
   final Color darkThemeBackGround = const Color.fromRGBO(23, 23, 23, 1);
   final Color darkThemeForeGround = Colors.white;
@@ -42,6 +43,7 @@ class UtilStyle {
   final Color darkThemeTitleColor = Colors.white;
   final Color darkThemeSubTitleColor = Colors.white38;
   final Color darkThemeTextFieldColor = Colors.black;
+  final Color darkThemeTextColor = Colors.black;
 
   final Color whiteThemeBackground = Colors.white;
   final Color whiteThemeForeground = Colors.black;
@@ -49,6 +51,7 @@ class UtilStyle {
   final Color whiteThemeTitleColor = Colors.black;
   final Color whiteThemeSubTitleColor = Colors.grey;
   final Color whiteThemeTextFieldColor = Colors.white;
+  final Color whiteThemeTextColor = Colors.white;
 
   void setarTema() async {
     themeManager.toggleDarkMode();
