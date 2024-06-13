@@ -156,11 +156,11 @@ class CanalState extends State<Canal> {
     return msg.extensao!.contains('image')
         ? ListTile(
             title: SizedBox(
-              height: 150,
+              // height: 300,
               child: FadeInImage.assetNetwork(
                 placeholder: 'assets/loading.gif', // ou outra imagem de placeholder
                 image: msg.url!,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
               ),
             ),
             subtitle: Text(
