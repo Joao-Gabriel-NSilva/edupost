@@ -21,7 +21,7 @@ Future<Usuario> ehSuperUsuario(bool logado, User? usuario) async {
     if (snap.exists) {
       var data = snap.data()!;
       return Usuario(
-          data['email'], data['nome'], data['ehSuperUsuario'], data['turma'] ?? '');
+          data['email'], data['nome'], data['ehSuperUsuario'], data['turma'] ?? '', urlFoto: data['urlFoto']);
     } else {
       FirebaseFirestore.instance.collection('usuarios').add({
         'email': usuario.email,

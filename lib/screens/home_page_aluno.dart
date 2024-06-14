@@ -61,14 +61,14 @@ class HomePageAlunoState extends State<HomePageAluno> {
 
           var data = snapshot.data!.data() as Map<String, dynamic>;
 
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => Canal(ModelCanal(data['curso'], data['periodo'], data['semestre'],
                 snapshot.data!.id,
                 mensagens: [],
                 ultimaMsg: data['ultimaMsg'],
                 msgsNaoVisualidazas: 0,
-                complemento: data['complemento']), widget.usuario.ehSuperUsuario)));
+                complemento: data['complemento']), widget.usuario)));
           },);
           return Column(
             children: [
@@ -79,7 +79,7 @@ class HomePageAlunoState extends State<HomePageAluno> {
                       ultimaMsg: data['ultimaMsg'],
                       msgsNaoVisualidazas: 0,
                       complemento: data['complemento']),
-                  false),
+                  widget.usuario),
             ],
           );
         },

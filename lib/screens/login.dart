@@ -126,7 +126,7 @@ class LoginState extends State<Login> {
           if (documentSnapshot.exists) {
             var data = documentSnapshot.data()! as Map<String, dynamic>;
             return Usuario(data['email'], data['nome'], data['ehSuperUsuario'],
-                data['turma']);
+                data['turma'], urlFoto: data['urlFoto']);
           }
           return null;
         });

@@ -1,3 +1,4 @@
+import 'package:edupost/model/usuario.dart';
 import 'package:edupost/util/util_style.dart';
 import 'package:flutter/material.dart';
 
@@ -6,9 +7,9 @@ import '../../screens/canal.dart';
 
 class ItemListaCanal extends StatelessWidget {
   final ModelCanal canal;
-  final bool ehAdm;
+  final Usuario usuario;
 
-  const ItemListaCanal(this.canal, this.ehAdm, {super.key});
+  const ItemListaCanal(this.canal, this.usuario, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +55,7 @@ class ItemListaCanal extends StatelessWidget {
 
   void _tap(context) {
     Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => Canal(canal, ehAdm)));
+        .push(MaterialPageRoute(builder: (_) => Canal(canal, usuario)));
 
     // Navigator.of(context).push(PageRouteBuilder(
     //     pageBuilder: (context, animation, secondaryAnimation) => Canal(canal),

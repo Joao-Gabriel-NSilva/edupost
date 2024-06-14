@@ -1,14 +1,10 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:edupost/notification/firebase_notification.dart';
 import 'package:edupost/widget/home_page/form_envio_de_msg_widget.dart';
 import 'package:edupost/widget/home_page/main_app_bar_widget.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:mime/mime.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
 import '../model/home_page/arquivo.dart';
 import '../util/util_style.dart';

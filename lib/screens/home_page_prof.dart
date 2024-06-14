@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../model/home_page/model_canal.dart';
 import '../model/usuario.dart';
 import '../widget/home_page/main_app_bar_widget.dart';
+import 'cadastros/perfil.dart';
 import 'envio_de_msg.dart';
 
 class HomePageProf extends StatefulWidget {
@@ -114,7 +115,7 @@ class HomePageProfState extends State<HomePageProf> {
                         msgsNaoVisualidazas: 0,
                         complemento: data['complemento'],
                       ),
-                      true,
+                      widget.usuario,
                     );
                   },
                 ),
@@ -177,6 +178,23 @@ class HomePageProfState extends State<HomePageProf> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Configuracoes(usuario)),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.person, color: UtilStyle.instance.textBackGroundColor),
+            title: Text(
+              'Perfil',
+              style: TextStyle(
+                  color: UtilStyle.instance.textBackGroundColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Perfil(usuario)),
               );
             },
           ),

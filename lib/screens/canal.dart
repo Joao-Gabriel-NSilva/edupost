@@ -13,14 +13,15 @@ import '../model/home_page/mensagem.dart';
 import 'package:intl/intl.dart';
 
 import '../model/home_page/model_canal.dart';
+import '../model/usuario.dart';
 import '../util/util_style.dart';
 
 class Canal extends StatefulWidget {
   final ModelCanal canal;
-  final bool ehAdm;
+  final Usuario usuario;
   final TextEditingController _controller = TextEditingController();
 
-  Canal(this.canal, this.ehAdm, {super.key});
+  Canal(this.canal, this.usuario, {super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -129,7 +130,7 @@ class CanalState extends State<Canal> {
             body: Column(
               children: [
                 const Expanded(child: Column()),
-                if (widget.ehAdm) _buildTextField()
+                if (widget.usuario.ehSuperUsuario) _buildTextField()
               ],
             ),
           );
@@ -165,29 +166,30 @@ class CanalState extends State<Canal> {
                     },
                   ),
                 ),
-                if (_files.isNotEmpty) SizedBox(
-                  height: 50,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: _files.map((arquivo) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Chip(
-                          color: const WidgetStatePropertyAll(Colors.grey),
-                          deleteIconColor: UtilStyle.instance.foreGroundColor,
-                          labelStyle: TextStyle(
-                              color: UtilStyle.instance.foreGroundColor),
-                          label: Text(arquivo.nome),
-                          deleteIcon: const Icon(Icons.close),
-                          onDeleted: () {
-                            _removeFile(arquivo);
-                          },
-                        ),
-                      );
-                    }).toList(),
+                if (_files.isNotEmpty)
+                  SizedBox(
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: _files.map((arquivo) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Chip(
+                            color: const WidgetStatePropertyAll(Colors.grey),
+                            deleteIconColor: UtilStyle.instance.foreGroundColor,
+                            labelStyle: TextStyle(
+                                color: UtilStyle.instance.foreGroundColor),
+                            label: Text(arquivo.nome),
+                            deleteIcon: const Icon(Icons.close),
+                            onDeleted: () {
+                              _removeFile(arquivo);
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-                if (widget.ehAdm) _buildTextField()
+                if (widget.usuario.ehSuperUsuario) _buildTextField()
               ],
             ));
       },
@@ -206,6 +208,22 @@ class CanalState extends State<Canal> {
       shape: RoundedRectangleBorder(
           side: BorderSide(color: UtilStyle.instance.corPrimaria, width: 1),
           borderRadius: const BorderRadius.all(Radius.circular(10))),
+      leading: widget.usuario.ehSuperUsuario && widget.usuario.urlFoto != null
+          ? CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.grey[200],
+              backgroundImage: widget.usuario.urlFoto != null
+                  ? NetworkImage(widget.usuario.urlFoto!)
+                  : null,
+              child: widget.usuario.urlFoto == null
+                  ? const Icon(
+                      Icons.person,
+                      size: 20,
+                      color: Colors.grey,
+                    )
+                  : null,
+            )
+          : null,
     );
   }
 
@@ -230,6 +248,23 @@ class CanalState extends State<Canal> {
                 side:
                     BorderSide(color: UtilStyle.instance.corPrimaria, width: 1),
                 borderRadius: const BorderRadius.all(Radius.circular(10))),
+            leading:
+                widget.usuario.ehSuperUsuario && widget.usuario.urlFoto != null
+                    ? CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage: widget.usuario.urlFoto != null
+                            ? NetworkImage(widget.usuario.urlFoto!)
+                            : null,
+                        child: widget.usuario.urlFoto == null
+                            ? const Icon(
+                                Icons.person,
+                                size: 20,
+                                color: Colors.grey,
+                              )
+                            : null,
+                      )
+                    : null,
           )
         : FutureBuilder(
             future: canLaunchUrl(Uri.parse(msg.url!)),
@@ -266,6 +301,23 @@ class CanalState extends State<Canal> {
                   icon: const Icon(Icons.download),
                   onPressed: () => launchUrl(Uri.parse(msg.url!)),
                 ),
+                leading: widget.usuario.ehSuperUsuario &&
+                        widget.usuario.urlFoto != null
+                    ? CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage: widget.usuario.urlFoto != null
+                            ? NetworkImage(widget.usuario.urlFoto!)
+                            : null,
+                        child: widget.usuario.urlFoto == null
+                            ? const Icon(
+                                Icons.person,
+                                size: 20,
+                                color: Colors.grey,
+                              )
+                            : null,
+                      )
+                    : null,
               );
             });
   }
@@ -285,23 +337,23 @@ class CanalState extends State<Canal> {
       var nome = (await remetente.get()).data()!['nome'];
       var t = FirebaseFirestore.instance.doc('turmas/${widget.canal.id}');
 
-      if(conteudo.isNotEmpty) {
+      if (conteudo.isNotEmpty) {
         await t.collection('mensagens').add({
           'conteudo': conteudo,
           'data': Timestamp.now(),
           'remetente': nome,
           'lidoPor': []
         });
-        if(arquivosSelecionados.isEmpty) {
+        if (arquivosSelecionados.isEmpty) {
           await FirebaseFirestore.instance
               .doc('turmas/${widget.canal.id}')
               .update({'ultimaMsg': conteudo});
         }
       }
 
-      if(arquivosSelecionados.isNotEmpty) {
+      if (arquivosSelecionados.isNotEmpty) {
         var path = 'anexos/${widget.canal.id}/';
-        for(var f in arquivosSelecionados) {
+        for (var f in arquivosSelecionados) {
           Reference ref = FirebaseStorage.instance.ref().child(path + f.nome);
           SettableMetadata metadata = SettableMetadata(contentType: f.tipo);
           // Sobe o arquivo
@@ -324,26 +376,22 @@ class CanalState extends State<Canal> {
               .update({'ultimaMsg': 'Anexo 📎'});
         }
       }
-
-
     }
   }
 
-  Future<void> _enviaMsgAnexo(path, extensao, url) async {
-    var email = FirebaseAuth.instance.currentUser!.email;
-
-    widget._controller.clear();
-
-    var remetente = FirebaseFirestore.instance.doc('usuarios/$email');
-    var nome = (await remetente.get()).data()!['nome'];
-    var t = FirebaseFirestore.instance.doc('turmas/${widget.canal.id}');
-
-
-
-    await FirebaseFirestore.instance
-        .doc('turmas/${widget.canal.id}')
-        .update({'ultimaMsg': 'Anexo 📎'});
-  }
+  // Future<void> _enviaMsgAnexo(path, extensao, url) async {
+  //   var email = FirebaseAuth.instance.currentUser!.email;
+  //
+  //   widget._controller.clear();
+  //
+  //   var remetente = FirebaseFirestore.instance.doc('usuarios/$email');
+  //   var nome = (await remetente.get()).data()!['nome'];
+  //   var t = FirebaseFirestore.instance.doc('turmas/${widget.canal.id}');
+  //
+  //   await FirebaseFirestore.instance
+  //       .doc('turmas/${widget.canal.id}')
+  //       .update({'ultimaMsg': 'Anexo 📎'});
+  // }
 
   TextStyle _labelTextStyle() {
     return const TextStyle(
@@ -414,19 +462,20 @@ class CanalState extends State<Canal> {
 
   Future<void> uploadFile(context) async {
     // Seleciona o arquivo
-    FilePickerResult? result = await FilePicker.platform
-        .pickFiles(allowMultiple: true, allowedExtensions: extensoesPermitidas, type: FileType.custom);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        allowedExtensions: extensoesPermitidas,
+        type: FileType.custom);
 
     if (result != null) {
       var files = result.files;
-      for(var arq in files) {
+      for (var arq in files) {
         File file = File(arq.path!);
         String mimeType = getMimeType(arq.path!);
         var a = Arquivo(arq.name, '', mimeType, file);
         _files.add(a);
       }
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
