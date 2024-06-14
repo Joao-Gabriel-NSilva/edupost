@@ -97,7 +97,7 @@ class CadastroUsuariosPageState extends State<CadastroUsuariosPage> {
           if (minLength > 0 && value.length < minLength) {
             return '$label deve ter pelo menos $minLength caracteres';
           }
-          if (emailValidation && !RegExp(r'^[a-zA-Z]+\.([0-9]+)-([0-9]{4})@aluno\.unicv\.edu\.br$').hasMatch(value)) {
+          if (emailValidation && !RegExp(r'^(?:[a-zA-Z]+\.[0-9]{5}-[0-9]{4}@aluno\.unicv\.edu\.br|prof_[a-zA-Z]+@unicv\.edu\.br)$').hasMatch(value)) {
             return 'Por favor, insira um email válido';
           }
           if (confirmPassword && value != _senhaController.text) {
@@ -245,9 +245,19 @@ class CadastroUsuariosPageState extends State<CadastroUsuariosPage> {
   }
 
   Future<void> _cadastraUsuario(BuildContext context) async {
+    String email = _emailController.text.trim();
+    bool isAluno = email.contains('@aluno');
+
+    if (isAluno && _ehSuperUsuario) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Usuários com email @aluno não podem ser administradores.')),
+      );
+      return;
+    }
+
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
+        email: email,
         password: _senhaController.text.trim(),
       );
 
@@ -260,9 +270,9 @@ class CadastroUsuariosPageState extends State<CadastroUsuariosPage> {
 
       var turmaId = turmaSnapshot.docs.first.id;
 
-      await FirebaseFirestore.instance.collection('usuarios').doc(_emailController.text.trim()).set({
+      await FirebaseFirestore.instance.collection('usuarios').doc(email).set({
         'nome': _nomeController.text.trim(),
-        'email': _emailController.text.trim(),
+        'email': email,
         'ehSuperUsuario': _ehSuperUsuario,
         'curso': _selectedCurso,
         'turma': turmaId,
@@ -282,6 +292,7 @@ class CadastroUsuariosPageState extends State<CadastroUsuariosPage> {
       );
     }
   }
+
 
   void _clearFields() {
     _emailController.clear();
