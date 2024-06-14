@@ -84,7 +84,7 @@ class _CadastroTurmasPageState extends State<CadastroTurmasPage> {
                         decoration: InputDecoration(
                           labelText: 'Curso',
                           prefixIcon: const Icon(Icons.book),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: UtilStyle.instance.corPrimaria)),
                           fillColor: Colors.white,
                           filled: true,
                         ),
