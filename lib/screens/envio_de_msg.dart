@@ -1,10 +1,16 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:edupost/notification/firebase_notification.dart';
 import 'package:edupost/widget/home_page/form_envio_de_msg_widget.dart';
 import 'package:edupost/widget/home_page/main_app_bar_widget.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:mime/mime.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
+import '../model/home_page/arquivo.dart';
 import '../util/util_style.dart';
 
 class EnvioDeMsg extends StatefulWidget {
@@ -25,13 +31,17 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
   final _animationButton = ValueNotifier<bool>(false);
   final GlobalKey<FormEnvioDeMsgWidgetState> _k =
       GlobalKey<FormEnvioDeMsgWidgetState>();
+  List<Arquivo> _files = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: UtilStyle.instance.backGroundColor,
-      appBar: MainAppBarWidget(false, titulo: 'Enviar aviso para turmas',),
+      appBar: MainAppBarWidget(
+        false,
+        titulo: 'Enviar aviso para turmas',
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -40,7 +50,9 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
               child: ListView(
             children: [
               FormEnvioDeMsgWidget(_formKey, _controllerMsg, _selectController,
-                  key: _k),
+                  (arquivos) {
+                _files = arquivos;
+              }, key: _k),
               _buildButton(context)
             ],
           ))
@@ -101,8 +113,9 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
   }
 
   void _enviaMsg(context) async {
-    var temMsg = _formKey.currentState!.validate() &&
-        _controllerMsg.text.trim().isNotEmpty;
+    var temMsg = _files.isNotEmpty ||
+        _formKey.currentState!.validate() &&
+            _controllerMsg.text.trim().isNotEmpty;
     if (temMsg && _selectController.selectedOptions.isNotEmpty) {
       _animationButton.value = true;
       var email = FirebaseAuth.instance.currentUser!.email;
@@ -112,20 +125,52 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
         var nome = (await remetente.get()).data()!['nome'];
         for (var item in _selectController.selectedOptions) {
           var t = FirebaseFirestore.instance.doc('turmas/${item.value!}');
-          await t.collection('mensagens').add({
-            'conteudo': conteudo,
-            'data': Timestamp.now(),
-            'remetente': nome,
-            'lidoPor': []
-          });
 
-          await FirebaseFirestore.instance
-              .doc('turmas/${item.value!}')
-              .update({'ultimaMsg': conteudo});
+          if (conteudo.isNotEmpty) {
+            await t.collection('mensagens').add({
+              'conteudo': conteudo,
+              'data': Timestamp.now(),
+              'remetente': nome,
+              'lidoPor': []
+            });
+            if (_files.isEmpty) {
+              await FirebaseFirestore.instance
+                  .doc('turmas/${item.value!}')
+                  .update({'ultimaMsg': conteudo});
+            }
+          }
+
+          if (_files.isNotEmpty) {
+            var path = 'anexos/${item.value}/';
+            for (var f in _files) {
+              Reference ref =
+                  FirebaseStorage.instance.ref().child(path + f.nome);
+              SettableMetadata metadata = SettableMetadata(contentType: f.tipo);
+              // Sobe o arquivo
+              await ref.putFile(f.file, metadata);
+              String url = await ref.getDownloadURL();
+
+              await t.collection('mensagens').add({
+                'conteudo': 'Anexo 📎',
+                'data': Timestamp.now(),
+                'remetente': nome,
+                'lidoPor': [],
+                'anexo': true,
+                'path': path + f.nome,
+                'extensao': f.tipo,
+                'url': url
+              });
+
+              await FirebaseFirestore.instance
+                  .doc('turmas/${item.value}')
+                  .update({'ultimaMsg': 'Anexo 📎'});
+            }
+          }
         }
 
         _controllerMsg.clear();
         _selectController.clearAllSelection();
+        _k.currentState!.arquivosSelecionados.clear();
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Mensagem enviada com sucesso!')),
@@ -143,8 +188,8 @@ class EnvioDeMsgState extends State<EnvioDeMsg> {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content:
-                Text('Informe o conteúdo da mensagem e ao menos uma turma.')),
+            content: Text(
+                'Informe o conteúdo da mensagem ou anexo e ao menos uma turma.')),
       );
     }
   }

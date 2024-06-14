@@ -10,6 +10,7 @@ import '../model/home_page/model_canal.dart';
 import '../model/usuario.dart';
 import '../notification/firebase_notification.dart';
 import '../widget/home_page/main_app_bar_widget.dart';
+import 'canal.dart';
 
 class HomePageAluno extends StatefulWidget {
   final Usuario usuario;
@@ -56,7 +57,19 @@ class HomePageAlunoState extends State<HomePageAluno> {
 
           FirebaseNotification.instance.configuraNotificacoes([snapshot.data!]);
 
+
+
           var data = snapshot.data!.data() as Map<String, dynamic>;
+
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => Canal(ModelCanal(data['curso'], data['periodo'], data['semestre'],
+                snapshot.data!.id,
+                mensagens: [],
+                ultimaMsg: data['ultimaMsg'],
+                msgsNaoVisualidazas: 0,
+                complemento: data['complemento']), widget.usuario.ehSuperUsuario)));
+          },);
           return Column(
             children: [
               ItemListaCanal(

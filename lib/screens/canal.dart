@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:mime/mime.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../model/home_page/arquivo.dart';
 import '../model/home_page/mensagem.dart';
 import 'package:intl/intl.dart';
 
@@ -29,10 +30,50 @@ class Canal extends StatefulWidget {
 
 class CanalState extends State<Canal> {
   final ScrollController _scrollController = ScrollController();
+  final List<String> extensoesPermitidas = [
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'webp',
+    'svg',
+    'pdf',
+    'doc',
+    'docx',
+    'odt',
+    'txt',
+    'rtf',
+    'xls',
+    'xlsx',
+    'ppt',
+    'pptx',
+    'mp4',
+    'avi',
+    'mkv',
+  ];
 
   @override
   void initState() {
     super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (_scrollController.hasClients) {
+    //     _scrollController
+    //         .jumpTo(_scrollController.position.extentTotal);
+    //     Future.delayed(const Duration(milliseconds: 1500), () {
+    //       _scrollController
+    //           .jumpTo(_scrollController.position.maxScrollExtent);
+    //     },);
+    //
+    //   }
+    // });
+  }
+
+  List<Arquivo> _files = [];
+
+  void _removeFile(Arquivo arq) {
+    setState(() {
+      _files.remove(arq);
+    });
   }
 
   @override
@@ -41,7 +82,7 @@ class CanalState extends State<Canal> {
       stream: FirebaseFirestore.instance
           .doc('turmas/${widget.canal.id}')
           .collection('mensagens')
-          .orderBy('data')
+          .orderBy('data', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -99,13 +140,6 @@ class CanalState extends State<Canal> {
                 m as DocumentSnapshot<Map<String, dynamic>>, null))
             .toList();
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_scrollController.hasClients) {
-            _scrollController
-                .jumpTo(_scrollController.position.maxScrollExtent);
-          }
-        });
-
         return Scaffold(
             backgroundColor: UtilStyle.instance.backGroundColor,
             appBar: MainAppBarWidget(
@@ -116,6 +150,7 @@ class CanalState extends State<Canal> {
               children: [
                 Expanded(
                   child: ListView.builder(
+                    reverse: true,
                     controller: _scrollController,
                     itemCount: msgs.length,
                     itemBuilder: (context, index) {
@@ -128,6 +163,28 @@ class CanalState extends State<Canal> {
                             : _buildListTileAnexo(msg),
                       );
                     },
+                  ),
+                ),
+                if (_files.isNotEmpty) SizedBox(
+                  height: 50,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: _files.map((arquivo) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Chip(
+                          color: const WidgetStatePropertyAll(Colors.grey),
+                          deleteIconColor: UtilStyle.instance.foreGroundColor,
+                          labelStyle: TextStyle(
+                              color: UtilStyle.instance.foreGroundColor),
+                          label: Text(arquivo.nome),
+                          deleteIcon: const Icon(Icons.close),
+                          onDeleted: () {
+                            _removeFile(arquivo);
+                          },
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
                 if (widget.ehAdm) _buildTextField()
@@ -158,7 +215,8 @@ class CanalState extends State<Canal> {
             title: SizedBox(
               // height: 300,
               child: FadeInImage.assetNetwork(
-                placeholder: 'assets/loading.gif', // ou outra imagem de placeholder
+                placeholder:
+                    'assets/loading.gif', // ou outra imagem de placeholder
                 image: msg.url!,
                 fit: BoxFit.fill,
               ),
@@ -205,7 +263,7 @@ class CanalState extends State<Canal> {
                         color: UtilStyle.instance.corPrimaria, width: 1),
                     borderRadius: const BorderRadius.all(Radius.circular(10))),
                 trailing: IconButton(
-                  icon: Icon(Icons.download),
+                  icon: const Icon(Icons.download),
                   onPressed: () => launchUrl(Uri.parse(msg.url!)),
                 ),
               );
@@ -213,26 +271,61 @@ class CanalState extends State<Canal> {
   }
 
   Future<void> _enviaMsg(context) async {
-    if (widget._controller.text.isNotEmpty) {
+    if (widget._controller.text.isNotEmpty || _files.isNotEmpty) {
       var email = FirebaseAuth.instance.currentUser!.email;
       var conteudo = widget._controller.text;
+      var arquivosSelecionados = List.from(_files);
 
       widget._controller.clear();
+      setState(() {
+        _files.clear();
+      });
 
       var remetente = FirebaseFirestore.instance.doc('usuarios/$email');
       var nome = (await remetente.get()).data()!['nome'];
       var t = FirebaseFirestore.instance.doc('turmas/${widget.canal.id}');
 
-      await t.collection('mensagens').add({
-        'conteudo': conteudo,
-        'data': Timestamp.now(),
-        'remetente': nome,
-        'lidoPor': []
-      });
+      if(conteudo.isNotEmpty) {
+        await t.collection('mensagens').add({
+          'conteudo': conteudo,
+          'data': Timestamp.now(),
+          'remetente': nome,
+          'lidoPor': []
+        });
+        if(arquivosSelecionados.isEmpty) {
+          await FirebaseFirestore.instance
+              .doc('turmas/${widget.canal.id}')
+              .update({'ultimaMsg': conteudo});
+        }
+      }
 
-      await FirebaseFirestore.instance
-          .doc('turmas/${widget.canal.id}')
-          .update({'ultimaMsg': conteudo});
+      if(arquivosSelecionados.isNotEmpty) {
+        var path = 'anexos/${widget.canal.id}/';
+        for(var f in arquivosSelecionados) {
+          Reference ref = FirebaseStorage.instance.ref().child(path + f.nome);
+          SettableMetadata metadata = SettableMetadata(contentType: f.tipo);
+          // Sobe o arquivo
+          await ref.putFile(f.file, metadata);
+          String url = await ref.getDownloadURL();
+
+          await t.collection('mensagens').add({
+            'conteudo': 'Anexo 📎',
+            'data': Timestamp.now(),
+            'remetente': nome,
+            'lidoPor': [],
+            'anexo': true,
+            'path': path + f.nome,
+            'extensao': f.tipo,
+            'url': url
+          });
+
+          await FirebaseFirestore.instance
+              .doc('turmas/${widget.canal.id}')
+              .update({'ultimaMsg': 'Anexo 📎'});
+        }
+      }
+
+
     }
   }
 
@@ -245,16 +338,7 @@ class CanalState extends State<Canal> {
     var nome = (await remetente.get()).data()!['nome'];
     var t = FirebaseFirestore.instance.doc('turmas/${widget.canal.id}');
 
-    await t.collection('mensagens').add({
-      'conteudo': 'Anexo 📎',
-      'data': Timestamp.now(),
-      'remetente': nome,
-      'lidoPor': [],
-      'anexo': true,
-      'path': path,
-      'extensao': extensao,
-      'url': url
-    });
+
 
     await FirebaseFirestore.instance
         .doc('turmas/${widget.canal.id}')
@@ -330,33 +414,20 @@ class CanalState extends State<Canal> {
 
   Future<void> uploadFile(context) async {
     // Seleciona o arquivo
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(allowMultiple: true, allowedExtensions: extensoesPermitidas, type: FileType.custom);
 
     if (result != null) {
-      String filePath = result.files.single.path!;
-      File file = File(filePath);
-      String mimeType = getMimeType(filePath);
-
-      try {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Enviando anexo...'),
-          duration: Duration(seconds: 3),
-        ));
-        // Cria uma referência no Firebase Storage
-        var path = 'anexos/${widget.canal.id}/${result.files.single.name}';
-        Reference ref = FirebaseStorage.instance.ref().child(path);
-        SettableMetadata metadata = SettableMetadata(contentType: mimeType);
-        // Sobe o arquivo
-        await ref.putFile(file, metadata);
-        String url = await ref.getDownloadURL();
-        await _enviaMsgAnexo(path, mimeType, url);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Anexo enviado.')));
-      } on FirebaseException catch (e) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Falha ao enviar anexo: $e')));
+      var files = result.files;
+      for(var arq in files) {
+        File file = File(arq.path!);
+        String mimeType = getMimeType(arq.path!);
+        var a = Arquivo(arq.name, '', mimeType, file);
+        _files.add(a);
       }
-    } else {}
+      setState(() {
+      });
+    }
   }
 
   Future<void> getFileMetadata() async {

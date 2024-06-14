@@ -83,6 +83,7 @@ class HomePageProfState extends State<HomePageProf> {
           ),
           drawer: buildDrawer(context, widget.usuario),
           floatingActionButton: FloatingActionButton(
+            heroTag: 'hero${DateTime.now().second}',
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (c) => const EnvioDeMsg()),
